@@ -1,12 +1,13 @@
+# plugin-sdk-cpp
 
-> Acts as a template for new repositories
+Status: **Under development**
 
-## Workflow
+Note: *The plugin system is a new feature and is still under active development. You can find more detail in the original [proposal document](https://github.com/falcosecurity/falco/blob/master/proposals/20210501-plugin-system.md). Since this feature has not yet been released in Falco, consider it as experimental at the moment.*
 
-1. Above the file list, click **Use this template** button.
-2. Type a name for your repository, and an optional description.
-3. Click **Create repository from template**.
-4. Edit the README.md file.
-5. Edit the OWNERS file adding/removing people for the specific project.
-6. Open an issue into [test-infra](https://github.com/falcosecurity/test-infra) to notify maintainers to enable Prow on the specific project
-7. DO NOT edit the LICENSE file which we'll be already in place
+C++ header only library fo facilitate writing [Falco/Falco libs](https://deploy-preview-493--falcosecurity.netlify.app/docs/plugins) plugins.  
+
+Before using this package, review the [developer's guide](https://deploy-preview-493--falcosecurity.netlify.app/docs/plugins/developers_guide/) which fully documents the API and provides best practices for writing plugins. The developer's guide includes a [walkthrough](https://deploy-preview-493--falcosecurity.netlify.app/docs/plugins/developers_guide/#c-plugin-sdk-walkthrough).  
+
+When ready to release your plugin, make sure to register the plugin with the Falcosecurity organization by creating a PR to modify the [PLUGINS-REGISTRY.md](https://github.com/falcosecurity/plugins/blob/master/plugins/PLUGINS-REGISTRY.md) file with details on the new plugin. This ensures that a given ID is used by exactly one source plugin, and allows source plugin authors and extractor plugin authors to coordinate about event source formats.
+
+
