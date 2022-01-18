@@ -1,8 +1,12 @@
 approvers:
+  - ldegio
   - leodido
   - fntlnz
-  - kris-nova
+  - mstemm
+  - leogr
 reviewers:
+  - ldegio
   - leodido
   - fntlnz
-  - kris-nova
+  - mstemm
+  - leogr
