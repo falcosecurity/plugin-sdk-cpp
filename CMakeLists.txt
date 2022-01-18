@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.8)
 
 project(PluginSdkCPP VERSION 0.1.0 LANGUAGES CXX)
 
-file(GLOB PUBLIC_H "*.h")
+file(GLOB PUBLIC_H "include/*.h")
 
 add_library(${PROJECT_NAME} INTERFACE)
 target_include_directories(${PROJECT_NAME} INTERFACE include/)
