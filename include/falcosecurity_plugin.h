@@ -43,7 +43,7 @@ std::ostream& operator<< (std::ostream &os, plugin_field const &f)
 	os << "\"type\":\"" << (f.ftype == FTYPE_UINT64 ? "uint64" : "string") << "\",";
 	os << "\"name\":\"" << f.name << "\",";
 	os << "\"argRequired\":" << std::boolalpha << f.arg_required << ",";
-	os << "\"desc\":\"" << f.description << "\"";
+	os << "\"desc\":\"" << f.description << "\",";
 	os << "\"properties\":[";
 
 	bool first = true;
