@@ -1,14 +1,8 @@
 approvers:
   - ldegio
   - leodido
-  - fntlnz
   - mstemm
   - leogr
   - fededp
-reviewers:
-  - ldegio
-  - leodido
+emeritus_approvers:
   - fntlnz
-  - mstemm
-  - leogr
-  - fededp
