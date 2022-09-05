@@ -26,7 +26,7 @@ limitations under the License.
     }                                           \
     catch (std::exception &e)                   \
     {                                           \
-        p->m_exception_err = e.what();          \
+        p->m_last_err = e.what();               \
         then;                                   \
     }  
 
@@ -42,15 +42,8 @@ namespace falcosecurity::_internal::c
         falcosecurity::_internal::check_field_extractor(p);
         if (res.empty())
         {
-            std::vector<std::string> sources;
-            CATCH_EXCEPTION_THEN(p, {
-                sources = p->m_field_extractor->extract_event_sources();
-            }, {
-                return "";
-            });
-
             auto arr = nlohmann::json::array();
-            for (const auto& s : sources)
+            for (const auto& s : p->m_extract_event_sources)
             {
                 arr.push_back(s);
             }
@@ -67,15 +60,8 @@ namespace falcosecurity::_internal::c
         falcosecurity::_internal::check_field_extractor(p);
         if (res.empty())
         {
-            std::vector<falcosecurity::field_extractor::field> fields;
-            CATCH_EXCEPTION_THEN(p, {
-                fields = p->m_field_extractor->fields();
-            }, {
-                return "";
-            });
-
             auto arr = nlohmann::json::array();
-            for (const auto& f : fields)
+            for (const auto& f : p->m_fields)
             {
                 nlohmann::json entry;
                 entry["name"] = f.name;

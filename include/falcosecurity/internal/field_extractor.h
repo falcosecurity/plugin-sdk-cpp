@@ -79,23 +79,22 @@ namespace falcosecurity
          * @brief Returns a list of event sources with which this plugin
          * is compatible for the field extraction capability. An empty list
          * is interpreted by the framework as the plugin being compatible with
-         * all event sources. The plugin is the owner of the returned reference.
+         * all event sources.
          * 
          * Overriding this method is optional. It is not pure-virtual, and a
          * default implementation returning an empty list.
          * 
          * @return const std::vector<std::string>& The list of event sources
          */
-        virtual const std::vector<std::string>& extract_event_sources() const
+        virtual void extract_event_sources(std::vector<std::string>& out) const
         {
-            return s_all_event_sources;
+            out.clear();
         }
 
         /**
          * @brief Return the list of extractor fields exported by this plugin.
-         * The plugin is the owner of the returned reference.
          */
-        virtual const std::vector<field>& fields() const = 0;
+        virtual void fields(std::vector<field>& out) const = 0;
 
         /**
          * @brief Extracts a field from the given event data. This is meant to
@@ -110,8 +109,5 @@ namespace falcosecurity
          * be retrievable by invoking last_error()
          */
         virtual bool extract(const ss_plugin_event* evt, ss_plugin_extract_field* field) = 0;
-
-    private:
-        const std::vector<std::string> s_all_event_sources;
     };
 };

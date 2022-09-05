@@ -32,24 +32,14 @@ class full_plugin:
         public falcosecurity::event_sourcer
 {
 public:
-    full_plugin();
+    void info(falcosecurity::plugin::information&) const override;
+    bool init(const std::string& config) override;
+    void last_error(std::string& out) const override;
 
-    const falcosecurity::plugin::information& info() const  override;
-    bool init(const std::string& config)  override;
-    const std::string& last_error() const  override;
-
-    const std::vector<std::string>& extract_event_sources() const  override;
-    const std::vector<field>& fields() const  override;
+    void fields(std::vector<field>& out) const override;
     bool extract(const ss_plugin_event* evt, ss_plugin_extract_field* field)  override;
 
     uint32_t id() const;
-    const std::string& event_source() const;
+    void event_source(std::string& out) const;
     std::unique_ptr<falcosecurity::event_sourcer::instance> open(const std::string& params);
-
-private:
-    falcosecurity::plugin::information m_info;
-    std::string m_evt_source;
-    std::string m_last_error;
-    std::vector<std::string> m_extract_event_sources;
-    std::vector<falcosecurity::field_extractor::field> m_fields;
 };

@@ -25,7 +25,7 @@ limitations under the License.
     }                                   \
     catch (std::exception &e)           \
     {                                   \
-        p->m_exception_err = e.what();  \
+        p->m_last_err = e.what();       \
     }                                   \
 
 namespace falcosecurity::_internal::c
@@ -35,7 +35,7 @@ namespace falcosecurity::_internal::c
     {
         static auto p = falcosecurity::_internal::allocate();
         CATCH_EXCEPTION(p, {
-            return p->m_plugin->info().required_api_version.c_str();
+            return p->m_info.required_api_version.c_str();
         });
         return "";
     }
@@ -45,7 +45,8 @@ namespace falcosecurity::_internal::c
     {
         static auto p = falcosecurity::_internal::allocate();
         CATCH_EXCEPTION(p, {
-            return p->m_plugin->init_schema(schema_type).c_str();
+            *schema_type = p->m_init_schema_type;
+            return p->m_init_schema.c_str();
         });
         return "";
     }
@@ -55,7 +56,7 @@ namespace falcosecurity::_internal::c
     {
         static auto p = falcosecurity::_internal::allocate();
         CATCH_EXCEPTION(p, {
-            return p->m_plugin->info().name.c_str();
+            return p->m_info.name.c_str();
         });
         return "";
     }
@@ -65,7 +66,7 @@ namespace falcosecurity::_internal::c
     {
         static auto p = falcosecurity::_internal::allocate();
         CATCH_EXCEPTION(p, {
-            return p->m_plugin->info().description.c_str();
+            return p->m_info.description.c_str();
         });
         return "";
     }
@@ -75,7 +76,7 @@ namespace falcosecurity::_internal::c
     {
         static auto p = falcosecurity::_internal::allocate();
         CATCH_EXCEPTION(p, {
-            return p->m_plugin->info().contact.c_str();
+            return p->m_info.contact.c_str();
         });
         return "";
     }
@@ -85,7 +86,7 @@ namespace falcosecurity::_internal::c
     {
         static auto p = falcosecurity::_internal::allocate();
         CATCH_EXCEPTION(p, {
-            return p->m_plugin->info().version.c_str();
+            return p->m_info.version.c_str();
         });
         return "";
     }
@@ -115,11 +116,11 @@ namespace falcosecurity::_internal::c
     const char *plugin_get_last_error(ss_plugin_t *s)
     {
         auto p = (falcosecurity::_internal::plugin_wrapper*) s;
-        if (!p->m_exception_err.empty())
+        if (p->m_last_err.empty())
         {
-            return p->m_exception_err.c_str();
+            p->m_plugin->last_error(p->m_last_err);
         }
-        return p->m_plugin->last_error().c_str();
+        return p->m_last_err.c_str();
     }
 };
 
