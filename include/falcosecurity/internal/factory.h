@@ -21,5 +21,19 @@ limitations under the License.
 
 namespace falcosecurity
 {
+    /**
+     * @brief Creates and returns a new plugin implementing the
+     * falcosecurity::plugin class interface. This function is used by the SDK
+     * when creating a new plugin. The newly created plugin can also implement
+     * one or more plugin capability class interfaces.
+     * 
+     * The SDK only provides a declaration of this function and SDK users
+     * are responsible for providing its definition. This is used to instruct
+     * the SDK about the user-defined plugin and the right way to initialize it.
+     * 
+     * This function must be idempotent, as the SDK will invoke arbitrarily.
+     * 
+     * @return std::unique_ptr<plugin> representing the newly-created plugin
+     */
     extern std::unique_ptr<plugin> factory() noexcept;
 }
