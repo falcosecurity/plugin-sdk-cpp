@@ -26,7 +26,7 @@ limitations under the License.
     }                                           \
     catch (std::exception &e)                   \
     {                                           \
-        p->m_exception_err = e.what();          \
+        p->m_last_err = e.what();               \
         then;                                   \
     }  
 
@@ -50,10 +50,7 @@ namespace falcosecurity::_internal::c
     {
         static auto p = falcosecurity::_internal::allocate();
         falcosecurity::_internal::check_event_sourcer(p);
-        CATCH_EXCEPTION(p, {
-            return p->m_event_sourcer->event_source().c_str();
-        });
-        return "";
+        return p->m_event_source.c_str();
     }
 
     extern "C"
@@ -62,7 +59,8 @@ namespace falcosecurity::_internal::c
         auto p = (falcosecurity::_internal::plugin_wrapper*) s;
         falcosecurity::_internal::check_event_sourcer(p);
         CATCH_EXCEPTION(p, {
-            return p->m_event_sourcer->event_as_string(evt).c_str();
+            p->m_event_sourcer->event_as_string(evt, p->m_event_to_string);
+            return p->m_event_to_string.c_str();
         });
         return "";
     }
@@ -144,13 +142,13 @@ namespace falcosecurity::_internal::c
     {
         auto p = (falcosecurity::_internal::plugin_wrapper*) s;
         falcosecurity::_internal::check_event_sourcer(p);
-        auto i = (falcosecurity::_internal::instance_wrapper*) h;
+        auto i = (falcosecurity::_internal::instance_wrapper*) h; 
+        double pct = 0.0;
 
         CATCH_EXCEPTION(p, {
-            double pct = 0.0;
-            auto str = i->instance->get_progress(p->m_event_sourcer, &pct).c_str();
+            i->instance->get_progress(p->m_event_sourcer, pct, i->m_get_progress_str);
             *progress_pct = (uint32_t)(pct * 10000);
-            return str;
+            return i->m_get_progress_str.c_str();
         });
 
         *progress_pct = 0;

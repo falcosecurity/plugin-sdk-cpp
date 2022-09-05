@@ -16,25 +16,12 @@ limitations under the License.
 
 #include "full.h"
 
-full_plugin::full_plugin(): m_info()
+void full_plugin::info(falcosecurity::plugin::information& out) const 
 {
-    m_evt_source = "example";
-    m_info.name = "full";
-    m_info.description = "Sample of full plugin";
-    m_info.contact = "https://github.com/falcosecurity/plugins";
-    m_info.version = "0.1.0";
-    
-    falcosecurity::field_extractor::field f;
-    f.name = "example.count";
-    f.type = FTYPE_UINT64;
-    f.description = "some desc";
-    f.display = "some display";
-    m_fields.push_back(f);
-}
-
-const falcosecurity::plugin::information& full_plugin::info() const 
-{
-    return m_info;
+    out.name = "full";
+    out.description = "Sample of full plugin";
+    out.contact = "https://github.com/falcosecurity/plugins";
+    out.version = "0.1.0";
 }
 
 bool full_plugin::init(const std::string& config) 
@@ -42,19 +29,20 @@ bool full_plugin::init(const std::string& config)
     return true;
 }
 
-const std::string& full_plugin::last_error() const 
+void full_plugin::last_error(std::string& out) const 
 {
-    return m_last_error;
+    out.clear();
 }
 
-const std::vector<std::string>& full_plugin::extract_event_sources() const 
+void full_plugin::fields(std::vector<falcosecurity::field_extractor::field>& out) const 
 {
-    return m_extract_event_sources;
-}
-
-const std::vector<falcosecurity::field_extractor::field>& full_plugin::fields() const 
-{
-    return m_fields;
+    falcosecurity::field_extractor::field f;
+    f.name = "example.count";
+    f.type = FTYPE_UINT64;
+    f.description = "some desc";
+    f.display = "some display";
+    out.clear();
+    out.push_back(f);
 }
 
 bool full_plugin::extract(const ss_plugin_event* evt, ss_plugin_extract_field* field) 
@@ -69,9 +57,9 @@ uint32_t full_plugin::id() const
     return 999;
 }
 
-const std::string& full_plugin::event_source() const 
+void full_plugin::event_source(std::string& out) const 
 {
-    return m_evt_source;
+    out = "example";
 }
 
 std::unique_ptr<falcosecurity::event_sourcer::instance> full_plugin::open(const std::string& params) 

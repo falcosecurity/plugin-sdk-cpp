@@ -46,10 +46,9 @@ namespace falcosecurity
 
         /**
          * @brief Returns a pointer to a struct containing all the general
-         * information about this plugin. The plugin is the owner of the
-         * returned reference.
+         * information about this plugin.
          */
-        virtual const plugin::information& info() const = 0;
+        virtual void info(plugin::information& out) const = 0;
 
         /**
          * @brief Initializes this plugin with a given config string
@@ -62,10 +61,9 @@ namespace falcosecurity
         virtual bool init(const std::string& config) = 0;
 
         /**
-         * @brief Returns the last error occurred in the plugin. The plugin
-         * is the owner of the returned reference.
+         * @brief Returns the last error occurred in the plugin.
          */
-        virtual const std::string& last_error() const = 0;
+        virtual void last_error(std::string& out) const = 0;
 
         /**
          * @brief Returns the init configuration schema for this plugin.
@@ -86,19 +84,14 @@ namespace falcosecurity
          * Overriding this method is optional. It is not pure-virtual, and a
          * default implementation returning no schema is provided.
          * 
-         * The plugin is the owner of the returned string reference.
-         * 
          * @param schema_type Set as output with the ss_plugin_schema_type value
          * describing the type of the returned schema
          * @return const std::string& String representing the init config schema
          */
-        virtual const std::string& init_schema(ss_plugin_schema_type *schema_type) const 
+        virtual void init_schema(ss_plugin_schema_type& schema_type, std::string& schema) const 
         {
-            *schema_type = SS_PLUGIN_SCHEMA_NONE;
-            return s_empty_str;
+            schema_type = SS_PLUGIN_SCHEMA_NONE;
+            schema = "";
         }
-
-    private:
-        const std::string s_empty_str;
     };
 };

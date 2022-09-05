@@ -29,32 +29,63 @@ namespace falcosecurity
         {
             std::unique_ptr<event_sourcer::instance> instance;
             ss_plugin_event m_event;
+            std::string m_get_progress_str;
         };
 
         struct plugin_wrapper
         {
-            std::unique_ptr<plugin> m_plugin;
-            event_sourcer* m_event_sourcer;
-            field_extractor* m_field_extractor;
+            plugin_wrapper(std::unique_ptr<plugin> p)
+                : m_plugin(std::move(p)) { }
 
-            std::string m_exception_err;
+            ~plugin_wrapper()
+            {
+                m_plugin.release();
+            }
+
+            std::unique_ptr<plugin> m_plugin;
+            std::string m_last_err;
+            std::string m_init_schema;
+            ss_plugin_schema_type m_init_schema_type;
+            falcosecurity::plugin::information m_info;
+            
+            // event sourcing capability state
+            event_sourcer* m_event_sourcer;
+            std::string m_event_source;
+            std::string m_event_to_string;
             std::string m_open_param_list_str;
             std::vector<event_sourcer::open_param> m_open_param_list;
+
+            // field extraction capability state
+            field_extractor* m_field_extractor;
+            std::vector<std::string> m_extract_event_sources;
+            std::vector<falcosecurity::field_extractor::field> m_fields;
         };
 
-        inline static plugin_wrapper* allocate()
+        inline static plugin_wrapper* allocate() noexcept
         {
-            auto p = new plugin_wrapper();
-            p->m_plugin = factory();
+            auto p = new plugin_wrapper(factory());
 #ifdef _DEBUG
             if (!p->m_plugin)
             {
-                perror("interface implementation not registered: falcosecurity::plugin");
+                perror("broken plugin factory function: can't return nullptr");
                 exit(1);
             }
 #endif
+            p->m_plugin->info(p->m_info);
+            p->m_plugin->init_schema(p->m_init_schema_type, p->m_init_schema);
+
             p->m_event_sourcer = dynamic_cast<falcosecurity::event_sourcer*>(p->m_plugin.get());
+            if (p->m_event_sourcer)
+            {
+                p->m_event_sourcer->event_source(p->m_event_source);
+            }
+
             p->m_field_extractor = dynamic_cast<falcosecurity::field_extractor*>(p->m_plugin.get());
+            if (p->m_field_extractor)
+            {
+                p->m_field_extractor->fields(p->m_fields);
+                p->m_field_extractor->extract_event_sources(p->m_extract_event_sources);
+            }
             return p;
         }
 

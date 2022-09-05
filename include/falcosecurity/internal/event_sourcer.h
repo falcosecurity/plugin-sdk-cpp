@@ -76,14 +76,11 @@ namespace falcosecurity
              * @return const std::string& String representing the formatted
              * percentage.
              */
-            virtual const std::string& get_progress(const event_sourcer* p, double* progress_pct)
+            virtual void get_progress(const event_sourcer* p, double& progress_pct, std::string& str)
             {
-                *progress_pct = 0.0;
-                return s_empty_str;
+                progress_pct = 0.0;
+                str = "";
             }
-
-        private:
-            const std::string s_empty_str;
         };
 
         /**
@@ -109,10 +106,9 @@ namespace falcosecurity
 
         /**
          * @brief Returns the name of the event source implemented by this
-         * plugin for its event sourcing capability. The plugin is the owner 
-         * of the returned string reference.
+         * plugin for its event sourcing capability.
          */
-        virtual const std::string& event_source() const = 0;
+        virtual void event_source(std::string& out) const = 0;
         
         /**
          * @brief Returns a list of suggested open parameters. This is meant
@@ -135,12 +131,11 @@ namespace falcosecurity
         
         /**
          * @brief Returns the name of the event source implemented by this
-         * plugin for its event sourcing capability. The plugin is the owner 
-         * of the returned string reference.
+         * plugin for its event sourcing capability.
          */
-        virtual const std::string& event_as_string(const ss_plugin_event *evt)
+        virtual void event_as_string(const ss_plugin_event *evt, std::string& out)
         {
-            return s_empty_str;
+            out = "";
         }
 
         /**
@@ -156,9 +151,5 @@ namespace falcosecurity
          * be retrievable by invoking last_error()
          */
         virtual std::unique_ptr<instance> open(const std::string& params) = 0;
-
-    private:
-        const std::string s_empty_str;
-        const std::vector<open_param> s_no_open_params;
     };
 };
