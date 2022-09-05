@@ -1,19 +1,15 @@
-# plugin-sdk-cpp
+# Plugin SDK C++
 
-Status: **Under development**
+Status: **Experimental**
 
-Note: *The plugin system is a new feature and is still under active development. You can find more detail in the original [proposal document](https://github.com/falcosecurity/falco/blob/master/proposals/20210501-plugin-system.md). Since this feature has not yet been released in Falco, consider it as experimental at the moment.*
+Note: *The plugin system is a new feature and is still under active development. You can find more detail in the original [proposal document](https://github.com/falcosecurity/falco/blob/master/proposals/20210501-plugin-system.md) and the [official documentation](https://falco.org/docs/plugins/). Since this feature has not yet been released in Falco, consider it as experimental at the moment.*
 
-C++ header only library fo facilitate writing [Falco/Falco libs](https://falco.org/docs/plugins/) plugins.  
-
-Before using this package, review the [developer's guide](https://falco.org/docs/plugins/developers_guide/) which fully documents the API and provides best practices for writing plugins. The developer's guide includes a [walkthrough](https://falco.org/docs/plugins/developers_guide/#c-plugin-sdk-walkthrough).  
-
-When ready to release your plugin, make sure to register the plugin with the Falcosecurity organization by creating a PR to modify the [PLUGINS-REGISTRY.md](https://github.com/falcosecurity/plugins/blob/master/plugins/PLUGINS-REGISTRY.md) file with details on the new plugin. This ensures that a given ID is used by exactly one source plugin, and allows source plugin authors and extractor plugin authors to coordinate about event source formats.
+C++ header only library fo facilitate writing [Falcosecurity plugins](https://falco.org/docs/plugins/). Before using this library, review the [developer's guide](https://falco.org/docs/plugins/developers_guide/) and the [plugin API reference](https://falco.org/docs/plugins/plugin-api-reference/).
 
 
 ## How to use
 
-You have got 2 choices: either install this library system wide before creating any plugin, or use cmake FetchContent/ExternalProjectAdd like:
+You have got 2 choices: either install this library system wide before creating any plugin, include the library files manually, or use cmake FetchContent/ExternalProjectAdd like:
 
 ```
 project(your_proj VERSION 1.0.0 LANGUAGES CXX)
