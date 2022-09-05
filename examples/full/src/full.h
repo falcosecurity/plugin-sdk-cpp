@@ -21,7 +21,7 @@ limitations under the License.
 class full_instance: public falcosecurity::event_sourcer::instance
 {
 public:
-    ss_plugin_rc next(const falcosecurity::event_sourcer* p, ss_plugin_event* evt);
+    ss_plugin_rc next(const falcosecurity::event_sourcer* p, ss_plugin_event* evt) override;
     
 private:
     uint64_t m_count = 0;
@@ -37,9 +37,9 @@ public:
     void last_error(std::string& out) const override;
 
     void fields(std::vector<field>& out) const override;
-    bool extract(const ss_plugin_event* evt, ss_plugin_extract_field* field)  override;
+    bool extract(const ss_plugin_event* evt, ss_plugin_extract_field* field) override;
 
     uint32_t id() const;
     void event_source(std::string& out) const;
-    std::unique_ptr<falcosecurity::event_sourcer::instance> open(const std::string& params);
+    std::unique_ptr<falcosecurity::event_sourcer::instance> open(const std::string& params) override;
 };

@@ -53,7 +53,7 @@ class my_awesome_plugin:
 }
 ```
 
-Finally, the third step is to include the pre-built plugin API symbols (only for the implemented capabilities), and provide an implementation for the `falcosecurity::factory()` function that is required by the SDK. These are the only non-interface definitions of the SDK that actually generate code symbols at compilation time, so you need to make sure to include the API headers and defint the `factory()` function in a single `cpp` source file (they don't need to be in the same source file though).
+Finally, the third step is to include the pre-built plugin API symbols (only for the implemented capabilities), and provide an implementation for the `falcosecurity::factory()` function that is required by the SDK. These are the only non-interface definitions of the SDK that actually generate code symbols at compilation time, so you need to make sure to include the API headers and define the `factory()` function in a single `cpp` source file (they don't need to be in the same source file though).
 
 ```cpp
 // comment-out if not implementing the event sourcing capability
