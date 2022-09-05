@@ -135,10 +135,6 @@ namespace falcosecurity::_internal::c
             auto p = (falcosecurity::_internal::plugin_wrapper*) s;
             falcosecurity::_internal::check_event_sourcer(p);
             auto i = (falcosecurity::_internal::instance_wrapper*) h;
-
-            CATCH_EXCEPTION(p, {
-                i->instance->close();
-            });
             delete i;
         }
     }
@@ -151,8 +147,13 @@ namespace falcosecurity::_internal::c
         auto i = (falcosecurity::_internal::instance_wrapper*) h;
 
         CATCH_EXCEPTION(p, {
-            return i->instance->get_progress(p->m_event_sourcer, progress_pct).c_str();
+            double pct = 0.0;
+            auto str = i->instance->get_progress(p->m_event_sourcer, &pct).c_str();
+            *progress_pct = (uint32_t)(pct * 10000);
+            return str;
         });
+
+        *progress_pct = 0;
         return "";
     }
 
@@ -164,6 +165,7 @@ namespace falcosecurity::_internal::c
         auto i = (falcosecurity::_internal::instance_wrapper*) h;
 
         CATCH_EXCEPTION_THEN(p, {
+            i->m_event.ts = UINT64_MAX;
             ss_plugin_rc rc = i->instance->next(p->m_event_sourcer, &i->m_event);
             if (rc == SS_PLUGIN_SUCCESS)
             {
