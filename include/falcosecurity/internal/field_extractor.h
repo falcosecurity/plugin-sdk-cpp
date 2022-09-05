@@ -21,11 +21,23 @@ limitations under the License.
 
 namespace falcosecurity
 {
+    /**
+     * @brief Class interface representing a plugin with field
+     * extraction capability
+     */
     class field_extractor: virtual public plugin
     {
     public:
+        /**
+         * @brief Represents a single field entry that a plugin with
+         * field extraction capability can expose
+         */
         struct field
         {
+            /**
+             * @brief Describes the argument of a single field entry that
+             * an plugin with field extraction capability can expose
+             */
             struct argument
             {
                 bool key = false;
@@ -41,6 +53,10 @@ namespace falcosecurity
             bool list = false;
             std::vector<std::string> properties;
 
+            /**
+             * @brief Returns a string representing the given
+             * ss_plugin_field_type
+             */
             inline static std::string type_as_string(ss_plugin_field_type t)
             {
                 switch (t)
@@ -55,14 +71,47 @@ namespace falcosecurity
             }
         };
 
-        field_extractor()  = default;
+        field_extractor() = default;
 
         virtual ~field_extractor() = default;
 
-        virtual const std::vector<std::string>& extract_event_sources() const  = 0;
+        /**
+         * @brief Returns a list of event sources with which this plugin
+         * is compatible for the field extraction capability. An empty list
+         * is interpreted by the framework as the plugin being compatible with
+         * all event sources. The plugin is the owner of the returned reference.
+         * 
+         * Overriding this method is optional. It is not pure-virtual, and a
+         * default implementation returning an empty list.
+         * 
+         * @return const std::vector<std::string>& The list of event sources
+         */
+        virtual const std::vector<std::string>& extract_event_sources() const
+        {
+            return s_all_event_sources;
+        }
 
-        virtual const std::vector<field>& fields() const  = 0;
+        /**
+         * @brief Return the list of extractor fields exported by this plugin.
+         * The plugin is the owner of the returned reference.
+         */
+        virtual const std::vector<field>& fields() const = 0;
 
-        virtual bool extract(const ss_plugin_event* evt, ss_plugin_extract_field* field)  = 0;
+        /**
+         * @brief Extracts a field from the given event data. This is meant to
+         * be used in plugin_extract_fields() to extract the value of a single
+         * field.
+         * 
+         * @param evt The event data
+         * @param field The field extraction request, used for both
+         * input and output
+         * @return true if the extraction was successful
+         * @return false if the extract failed. The failure error must
+         * be retrievable by invoking last_error()
+         */
+        virtual bool extract(const ss_plugin_event* evt, ss_plugin_extract_field* field) = 0;
+
+    private:
+        const std::vector<std::string> s_all_event_sources;
     };
 };
