@@ -69,6 +69,15 @@ namespace falcosecurity
                         return "";
                 }
             }
+            
+            field() = default;
+
+            field(std::string name,ss_plugin_field_type type,std::string display,std::string description){
+                this->name = name;
+                this->type = type;
+                this->display = display;
+                this->description = description;
+            }
         };
 
         field_extractor() = default;

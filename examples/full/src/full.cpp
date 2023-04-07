@@ -36,13 +36,7 @@ void full_plugin::last_error(std::string& out) const
 
 void full_plugin::fields(std::vector<falcosecurity::field_extractor::field>& out) const 
 {
-    falcosecurity::field_extractor::field f;
-    f.name = "example.count";
-    f.type = FTYPE_UINT64;
-    f.description = "some desc";
-    f.display = "some display";
-    out.clear();
-    out.push_back(f);
+    out = {{"example.count", FTYPE_UINT64,"some display","some desc"}};
 }
 
 bool full_plugin::extract(const ss_plugin_event* evt, ss_plugin_extract_field* field) 

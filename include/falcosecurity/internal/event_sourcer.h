@@ -91,6 +91,14 @@ namespace falcosecurity
             std::string value;
             std::string description;
             std::string separator;
+
+            open_param() = default;
+            
+            open_param(std::string value,std::string description,std::string separator){
+                this->value = value;
+                this->description = description;
+                this->separator = separator;
+            }
         };
 
         event_sourcer() = default;
