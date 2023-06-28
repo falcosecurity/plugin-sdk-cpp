@@ -35,7 +35,7 @@ class my_plugin
     public:
     virtual ~my_plugin() = default;
 
-    std::string get_name() { return "extract-example"; }
+    std::string get_name() { return "syscall-extract-example"; }
 
     std::string get_version() { return "0.1.0"; }
 
