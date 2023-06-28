@@ -35,7 +35,7 @@ class my_plugin
     public:
     virtual ~my_plugin() = default;
 
-    std::string get_name() { return "parse-example"; }
+    std::string get_name() { return "extract-example"; }
 
     std::string get_version() { return "0.1.0"; }
 
@@ -44,52 +44,59 @@ class my_plugin
     std::string get_contact() { return "some contact"; }
 
     // (optional)
-    std::vector<falcosecurity::event_type> get_parse_event_types()
+    std::vector<falcosecurity::event_type> get_extract_event_types()
     {
-        return {
-                PPME_SYSCALL_OPEN_E,
-                PPME_SYSCALL_OPEN_X,
-                PPME_SYSCALL_OPENAT_E,
-                PPME_SYSCALL_OPENAT_X,
-                PPME_SYSCALL_OPENAT_2_E,
-                PPME_SYSCALL_OPENAT_2_X,
-                PPME_SYSCALL_OPENAT2_E,
-                PPME_SYSCALL_OPENAT2_X,
-                PPME_SYSCALL_OPEN_BY_HANDLE_AT_E,
-                PPME_SYSCALL_OPEN_BY_HANDLE_AT_X,
-        };
+        return {};
     }
 
     // (optional)
-    std::vector<std::string> get_parse_event_sources() { return {"syscall"}; }
+    std::vector<std::string> get_extract_event_sources() { return {"syscall"}; }
+
+    std::vector<falcosecurity::field_info> get_fields()
+    {
+        using ft = falcosecurity::field_value_type;
+        return {
+                {ft::FTYPE_BOOL, "sample.is_open", "Is Open Type",
+                 "Value is true if event is of open family"},
+                {ft::FTYPE_UINT64, "sample.open_count", "Open Type Count",
+                 "Counter for all the events of open family in the event's "
+                 "thread thread"},
+        };
+    }
 
     bool init(falcosecurity::init_input& i)
     {
         using st = falcosecurity::state_value_type;
         auto& t = i.tables();
         m_threads_table = t.get_table("threads", st::SS_PLUGIN_ST_INT64);
-        m_threads_field_opencount = m_threads_table.add_field(
+        m_threads_field_opencount = m_threads_table.get_field(
                 t.fields(), "open_evt_count", st::SS_PLUGIN_ST_UINT64);
         return true;
     }
 
-    bool parse_event(const falcosecurity::parse_event_input& in)
+    bool extract(const falcosecurity::extract_fields_input& in)
     {
-        // update counter for current thread
         auto& evt = in.get_event_reader();
-        if(evt_type_is_open(evt.get_type()))
+        auto& req = in.get_extract_request();
+        switch(req.get_field_id())
+        {
+        case 0: // sample.is_open
+            req.set_value(evt_type_is_open(evt.get_type()));
+            return true;
+        case 1: // sample.open_count
         {
             auto& tr = in.get_table_reader();
-            auto& tw = in.get_table_writer();
-
             auto tinfo = m_threads_table.get_entry(tr, (int64_t)evt.get_tid());
-
             uint64_t count = 0;
             m_threads_field_opencount.read_value(tr, tinfo, count);
-            count++;
-            m_threads_field_opencount.write_value(tw, tinfo, count);
+            req.set_value(count);
+            return true;
         }
-        return true;
+        default:
+            break;
+        }
+
+        return false;
     }
 
     private:
@@ -108,4 +115,4 @@ class my_plugin
 };
 
 FALCOSECURITY_PLUGIN(my_plugin);
-FALCOSECURITY_PLUGIN_EVENT_PARSING(my_plugin);
+FALCOSECURITY_PLUGIN_FIELD_EXTRACTION(my_plugin);
