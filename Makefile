@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2022 The Falco Authors.
+# Copyright (C) 2023 The Falco Authors.
 #
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@
 
 CURL ?= curl
 
-FALCOSECURITY_LIBS_REVISION ?= 0.10.5
+FALCOSECURITY_LIBS_REVISION ?= 0.11.3
 FALCOSECURITY_LIBS_REPO     ?= falcosecurity/libs
 DEPS_INCLUDEDIR             := include/falcosecurity/internal/deps
 DEPS_PLUGIN_LIB_URL         := https://raw.githubusercontent.com/${FALCOSECURITY_LIBS_REPO}/${FALCOSECURITY_LIBS_REVISION}/userspace/plugin
@@ -41,6 +41,11 @@ $(DEPS_INCLUDEDIR):
 .PHONY: clean
 clean:
 	rm -fr $(DEPS_INCLUDEDIR) $(LIBDIR) $(OBJFILES)
+
+.PHONY: format
+format:
+	find ./include -iname *.h -o -iname *.cpp | grep -v "/deps/" | xargs clang-format -i
+	find ./examples -iname *.h -o -iname *.cpp | grep -v "/deps/" | xargs clang-format -i
 
 .PHONY: deps
 deps: $(DEPS_INCLUDEDIR)/plugin_types.h $(DEPS_INCLUDEDIR)/plugin_api.h $(DEPS_INCLUDEDIR)/nlohmann/json.hpp
