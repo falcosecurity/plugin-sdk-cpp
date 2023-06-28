@@ -50,7 +50,7 @@ template<class Plugin, class Base> class plugin_mixin_async : public Base
     {
         if(m_async_started)
         {
-            Plugin::stop_async_events();
+            _stop_async_events(static_cast<Plugin*>(this));
         }
     }
 
@@ -164,6 +164,19 @@ template<class Plugin, class Base> class plugin_mixin_async : public Base
     {
         return {};
     }
+
+    template<typename T>
+    FALCOSECURITY_INLINE auto _stop_async_events(T* o)
+            -> decltype(o->stop_async_events())
+    {
+        static_assert(std::is_same<bool (Plugin::*)() noexcept,
+                                   decltype(&Plugin::stop_async_events)>::value,
+                      "expected signature: bool stop_async_events() noexcept");
+        return o->stop_async_events();
+    }
+
+    FALCOSECURITY_INLINE
+    auto _stop_async_events(...) -> void {}
 };
 
 }; // namespace _internal
