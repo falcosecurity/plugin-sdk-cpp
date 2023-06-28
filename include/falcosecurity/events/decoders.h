@@ -68,15 +68,14 @@ class pluginevent_e_decoder
     uint32_t get_plugin_id() const { return m_plugin_id; }
 
     FALCOSECURITY_INLINE
-    void* get_data(uint32_t* len) const
+    void* get_data(uint32_t& len) const
     {
-        *len = m_datalen;
+        len = m_datalen;
         return m_data;
     };
 
     private:
     uint32_t m_plugin_id;
-    const char* m_name;
     void* m_data;
     uint32_t m_datalen;
 };
@@ -124,9 +123,9 @@ class asyncevent_e_decoder
     const char* get_name() const { return m_name; };
 
     FALCOSECURITY_INLINE
-    void* get_data(uint32_t* len) const
+    void* get_data(uint32_t& len) const
     {
-        *len = m_datalen;
+        len = m_datalen;
         return m_data;
     };
 
