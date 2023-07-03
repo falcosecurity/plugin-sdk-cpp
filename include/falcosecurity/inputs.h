@@ -26,6 +26,8 @@ limitations under the License.
 namespace falcosecurity
 {
 
+using table_input = _internal::ss_plugin_table_input;
+
 class table_init_input
 {
     public:
@@ -93,7 +95,26 @@ class table_init_input
         return table(name, key_type, res);
     }
 
-    // todo(jasondellaluce): implement adding a table
+    // todo(jasondellaluce): this is still experimental and we may want to add
+    // an ad-hoc wrapper for plugin-owned tables too
+    FALCOSECURITY_INLINE
+    void add_table(const table_input& in)
+    {
+        auto res = m_input->tables->add_table(
+                m_owner,
+                static_cast<const _internal::ss_plugin_table_input*>(&in));
+        if(res != _internal::SS_PLUGIN_SUCCESS)
+        {
+            std::string msg = "can't add table";
+            auto err = m_fielder.m_get_owner_last_error(m_fielder.m_owner);
+            if(err)
+            {
+                msg += ": ";
+                msg += err;
+            }
+            throw plugin_exception(msg);
+        }
+    }
 
     private:
     _internal::ss_plugin_owner_t* m_owner;
