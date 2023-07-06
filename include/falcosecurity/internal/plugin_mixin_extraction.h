@@ -130,6 +130,7 @@ template<class Plugin, class Base> class plugin_mixin_extraction : public Base
             for(uint32_t i = 0; i < in->num_fields; i++)
             {
                 auto& req = m_extract_requests[i];
+                in->fields[i].res_len = 0;
                 req.set_request(in->fields + i);
                 input.set_extract_request(req);
                 if(!Plugin::extract(input))
