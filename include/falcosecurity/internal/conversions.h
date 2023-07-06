@@ -109,6 +109,13 @@ FALCOSECURITY_INLINE void falcosecurity::_internal::read_state_data(
 }
 
 template<>
+FALCOSECURITY_INLINE void falcosecurity::_internal::read_state_data(
+        const falcosecurity::_internal::ss_plugin_state_data& v, const char*& o)
+{
+    o = v.str;
+}
+
+template<>
 FALCOSECURITY_INLINE void falcosecurity::_internal::write_state_data(
         falcosecurity::_internal::ss_plugin_state_data& v, const int8_t& o)
 {
@@ -176,6 +183,13 @@ FALCOSECURITY_INLINE void falcosecurity::_internal::write_state_data(
         falcosecurity::_internal::ss_plugin_state_data& v, const std::string& o)
 {
     v.str = o.c_str();
+}
+
+template<>
+FALCOSECURITY_INLINE void falcosecurity::_internal::write_state_data(
+        falcosecurity::_internal::ss_plugin_state_data& v, const char* const& o)
+{
+    v.str = o;
 }
 
 template<>

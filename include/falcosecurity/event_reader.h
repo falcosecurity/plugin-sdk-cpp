@@ -55,6 +55,9 @@ class event_reader
     uint64_t get_tid() const { return m_input->evt->tid; }
 
     FALCOSECURITY_INLINE
+    uint64_t get_params_num() const { return m_input->evt->nparams; }
+
+    FALCOSECURITY_INLINE
     uint64_t get_num() const { return m_input->evtnum; }
 
     FALCOSECURITY_INLINE
