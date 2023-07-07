@@ -261,3 +261,10 @@ falcosecurity::_internal::state_type_of(const std::string&)
 {
     return state_value_type::SS_PLUGIN_ST_STRING;
 }
+
+template<>
+FALCOSECURITY_INLINE falcosecurity::state_value_type
+falcosecurity::_internal::state_type_of(const char* const&)
+{
+    return state_value_type::SS_PLUGIN_ST_STRING;
+}
