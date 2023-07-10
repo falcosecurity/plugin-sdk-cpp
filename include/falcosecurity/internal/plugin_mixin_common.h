@@ -133,7 +133,21 @@ template<class Plugin> class plugin_mixin_common : public Plugin
         return ss_plugin_rc::SS_PLUGIN_FAILURE;
     }
 
+    FALCOSECURITY_INLINE
+    void destroy() noexcept { _destroy(static_cast<Plugin*>(this)); }
+
     private:
+    template<typename T>
+    FALCOSECURITY_INLINE auto _destroy(T* o) -> decltype(o->destroy())
+    {
+        static_assert(std::is_same<void (T::*)(), decltype(&T::destroy)>::value,
+                      "expected signature: void destroy()");
+        return o->destroy();
+    }
+
+    FALCOSECURITY_INLINE
+    auto _destroy(...) -> void {}
+
     template<typename T>
     FALCOSECURITY_INLINE auto _get_required_api_version(T* o)
             -> decltype(o->get_required_api_version())

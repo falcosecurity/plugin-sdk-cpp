@@ -76,6 +76,7 @@ limitations under the License.
     void plugin_destroy(ss_plugin_t* s)                                        \
     {                                                                          \
         auto p = static_cast<plugin_mixin<__t>*>(s);                           \
+        p->destroy();                                                          \
         delete p;                                                              \
     }                                                                          \
     }; /* _internal */                                                         \

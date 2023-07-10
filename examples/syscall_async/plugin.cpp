@@ -32,6 +32,9 @@ class my_plugin
 
     std::string get_contact() { return "some contact"; }
 
+    // (optional)
+    void destroy() {}
+
     bool init(falcosecurity::init_input& i)
     {
         m_async_sleep_ms = 1000;
