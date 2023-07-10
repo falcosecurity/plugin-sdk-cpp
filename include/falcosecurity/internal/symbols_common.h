@@ -70,8 +70,6 @@ limitations under the License.
         return static_cast<ss_plugin_t*>(res);                                 \
     }                                                                          \
                                                                                \
-    /* todo(jasondellaluce): should we have an explicit "destroy" function for \
-     * catching errors? */                                                     \
     FALCOSECURITY_EXPORT                                                       \
     void plugin_destroy(ss_plugin_t* s)                                        \
     {                                                                          \
