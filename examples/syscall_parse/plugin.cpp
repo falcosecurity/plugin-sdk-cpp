@@ -63,6 +63,9 @@ class my_plugin
     // (optional)
     std::vector<std::string> get_parse_event_sources() { return {"syscall"}; }
 
+    // (optional)
+    void destroy() {}
+
     bool init(falcosecurity::init_input& i)
     {
         using st = falcosecurity::state_value_type;

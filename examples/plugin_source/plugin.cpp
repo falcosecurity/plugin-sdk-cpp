@@ -78,6 +78,9 @@ class my_plugin
         return "evt num: " + std::to_string(evt.get_num());
     }
 
+    // (optional)
+    void destroy() {}
+
     bool init(falcosecurity::init_input& i) { return true; }
 
     std::unique_ptr<my_event_source> open(const std::string& params)

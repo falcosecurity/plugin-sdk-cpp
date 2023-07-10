@@ -64,6 +64,9 @@ class my_plugin
         };
     }
 
+    // (optional)
+    void destroy() {}
+
     bool init(falcosecurity::init_input& i)
     {
         using st = falcosecurity::state_value_type;

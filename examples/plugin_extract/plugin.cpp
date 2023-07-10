@@ -44,6 +44,9 @@ class my_plugin
         };
     }
 
+    // (optional)
+    void destroy() {}
+
     bool init(falcosecurity::init_input& i) { return true; }
 
     bool extract(const falcosecurity::extract_fields_input& in)
