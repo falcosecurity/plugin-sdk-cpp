@@ -22,10 +22,14 @@ limitations under the License.
 class my_event_source
 {
     public:
+    virtual ~my_event_source() = default;
+
     my_event_source(size_t max_evts): m_count(0), m_max_evts(max_evts), m_enc()
     {
     }
-    virtual ~my_event_source() = default;
+
+    // (optional)
+    // void close() {}
 
     // (optional)
     double get_progress(std::string& fmt)

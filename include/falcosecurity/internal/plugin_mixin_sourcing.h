@@ -53,6 +53,9 @@ class plugin_instance_mixin : public PluginInstance
     ss_plugin_event* m_event_ptr;
 
     FALCOSECURITY_INLINE
+    void close() noexcept { _close(static_cast<PluginInstance*>(this)); }
+
+    FALCOSECURITY_INLINE
     const char* get_progress(uint32_t* progress_pct)
     {
         m_progress_fmt_storage.clear();
@@ -108,6 +111,17 @@ class plugin_instance_mixin : public PluginInstance
         fmt.clear();
         return 0.0;
     }
+
+    template<typename T>
+    FALCOSECURITY_INLINE auto _close(T* o) -> decltype(o->close())
+    {
+        static_assert(std::is_same<void (T::*)(), decltype(&T::close)>::value,
+                      "expected signature: void close()");
+        return o->close();
+    }
+
+    FALCOSECURITY_INLINE
+    auto _close(...) -> void {}
 };
 
 template<class Plugin, class Base> class plugin_mixin_sourcing : public Base
@@ -197,12 +211,11 @@ template<class Plugin, class Base> class plugin_mixin_sourcing : public Base
         return NULL;
     }
 
-    // todo(jasondellaluce): should we have an explicit "close()" function for
-    // catching erros?
     template<class PluginInstance>
     FALCOSECURITY_INLINE void close(ss_instance_t* h)
     {
         auto i = static_cast<plugin_instance_mixin<PluginInstance>*>(h);
+        i->close();
         delete i;
     }
 
