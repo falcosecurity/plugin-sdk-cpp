@@ -156,10 +156,24 @@ using table_entry = _internal::ss_plugin_table_field_t*;
 
 class table_stale_entry
 {
+    public:
     FALCOSECURITY_INLINE
-    table_stale_entry(table_stale_entry&&) = default;
+    table_stale_entry(table_stale_entry&& o)
+    {
+        m_entry = o.m_entry;
+        m_table = o.m_table;
+        m_writer = o.m_writer;
+        o.m_entry = nullptr;
+    };
     FALCOSECURITY_INLINE
-    table_stale_entry& operator=(table_stale_entry&&) = default;
+    table_stale_entry& operator=(table_stale_entry&& o)
+    {
+        m_entry = o.m_entry;
+        m_table = o.m_table;
+        m_writer = o.m_writer;
+        o.m_entry = nullptr;
+        return *this;
+    };
     FALCOSECURITY_INLINE
     table_stale_entry(const table_stale_entry&) = delete;
     FALCOSECURITY_INLINE
@@ -483,7 +497,7 @@ class table
             }
             throw plugin_exception(msg);
         }
-        return std::move(table_stale_entry(res, m_table, w));
+        return table_stale_entry(res, m_table, w);
     }
 
     template<typename T>
@@ -492,7 +506,7 @@ class table
                                                table_stale_entry&& e)
     {
         check_type(key);
-        _internal::read_state_data<T>(m_data, key);
+        _internal::write_state_data<T>(m_data, key);
         auto res = static_cast<table_entry>(
                 w.m_writer->add_table_entry(m_table, &m_data, e.m_entry));
         if(!res)
