@@ -20,6 +20,8 @@ limitations under the License.
 
 #include <falcosecurity/internal/deps/nlohmann/json.hpp>
 
+#include <inttypes.h>
+
 namespace falcosecurity
 {
 namespace _internal
