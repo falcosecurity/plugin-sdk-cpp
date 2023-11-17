@@ -32,8 +32,12 @@ class async_event_handler
     public:
     FALCOSECURITY_INLINE
     async_event_handler(
-        falcosecurity::_internal::ss_plugin_owner_t* o,
-        const falcosecurity::_internal::ss_plugin_async_event_handler_t h): m_owner(o), m_handler(h), m_writer() {}
+            falcosecurity::_internal::ss_plugin_owner_t* o,
+            const falcosecurity::_internal::ss_plugin_async_event_handler_t h):
+            m_owner(o),
+            m_handler(h), m_writer()
+    {
+    }
     FALCOSECURITY_INLINE
     async_event_handler(async_event_handler&&) = default;
     FALCOSECURITY_INLINE
@@ -44,17 +48,17 @@ class async_event_handler
     async_event_handler& operator=(const async_event_handler& s) = delete;
 
     FALCOSECURITY_INLINE
-    event_writer& writer()
-    {
-        return m_writer;
-    }
+    event_writer& writer() { return m_writer; }
 
     FALCOSECURITY_INLINE
     void push()
     {
         char err[PLUGIN_MAX_ERRLEN];
-        if(m_handler(m_owner, (const falcosecurity::_internal::ss_plugin_event*)m_writer.get_buf(),
-                err) != falcosecurity::_internal::ss_plugin_rc::SS_PLUGIN_SUCCESS)
+        if(m_handler(m_owner,
+                     (const falcosecurity::_internal::ss_plugin_event*)
+                             m_writer.get_buf(),
+                     err) !=
+           falcosecurity::_internal::ss_plugin_rc::SS_PLUGIN_SUCCESS)
         {
             std::string msg = "async event handler failure";
             if(*err != '\0')
@@ -72,27 +76,33 @@ class async_event_handler
     event_writer m_writer;
 };
 
-
 class async_event_handler_factory
 {
     public:
     FALCOSECURITY_INLINE
     async_event_handler_factory(
-        falcosecurity::_internal::ss_plugin_owner_t* o,
-        const falcosecurity::_internal::ss_plugin_async_event_handler_t h): m_owner(o), m_handler(h) {}
+            falcosecurity::_internal::ss_plugin_owner_t* o,
+            const falcosecurity::_internal::ss_plugin_async_event_handler_t h):
+            m_owner(o),
+            m_handler(h)
+    {
+    }
     FALCOSECURITY_INLINE
     async_event_handler_factory(async_event_handler_factory&&) = default;
     FALCOSECURITY_INLINE
-    async_event_handler_factory& operator=(async_event_handler_factory&&) = default;
+    async_event_handler_factory&
+    operator=(async_event_handler_factory&&) = default;
     FALCOSECURITY_INLINE
     async_event_handler_factory(const async_event_handler_factory& s) = default;
     FALCOSECURITY_INLINE
-    async_event_handler_factory& operator=(const async_event_handler_factory& s) = default;
+    async_event_handler_factory&
+    operator=(const async_event_handler_factory& s) = default;
 
     FALCOSECURITY_INLINE
     std::unique_ptr<async_event_handler> new_handler() const
     {
-        return std::unique_ptr<async_event_handler>(new async_event_handler(m_owner, m_handler));
+        return std::unique_ptr<async_event_handler>(
+                new async_event_handler(m_owner, m_handler));
     }
 
     private:

@@ -62,11 +62,12 @@ class my_plugin
     // (optional)
     std::vector<std::string> get_async_event_sources() { return {"syscall"}; }
 
-    bool start_async_events(std::shared_ptr<falcosecurity::async_event_handler_factory> f)
+    bool start_async_events(
+            std::shared_ptr<falcosecurity::async_event_handler_factory> f)
     {
         m_async_thread_quit = false;
-        m_async_thread =
-                std::thread(&my_plugin::async_thread_loop, this, std::move(f->new_handler()));
+        m_async_thread = std::thread(&my_plugin::async_thread_loop, this,
+                                     std::move(f->new_handler()));
         return true;
     }
 
@@ -80,7 +81,8 @@ class my_plugin
         return true;
     }
 
-    void async_thread_loop(std::unique_ptr<falcosecurity::async_event_handler> h) noexcept
+    void async_thread_loop(
+            std::unique_ptr<falcosecurity::async_event_handler> h) noexcept
     {
         std::string msg;
         uint64_t count = 0;
