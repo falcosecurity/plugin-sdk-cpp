@@ -24,6 +24,7 @@ limitations under the License.
 #include <falcosecurity/internal/deps.h>
 #include <falcosecurity/internal/hacks.h>
 #include <falcosecurity/types.h>
+#include <falcosecurity/async_event_handler.h>
 #include <functional>
 #include <stdexcept>
 #include <string>
@@ -58,7 +59,7 @@ template<class Plugin, class Base> class plugin_mixin_async : public Base
     bool m_async_started = false;
     std::string m_async_events_storage;
     std::string m_async_event_sources_storage;
-    event_writer m_event_writer;
+    std::shared_ptr<async_event_handler_factory> m_handler_factory;
 
     FALCOSECURITY_INLINE
     const char* get_async_events() noexcept
@@ -97,12 +98,10 @@ template<class Plugin, class Base> class plugin_mixin_async : public Base
                             const ss_plugin_async_event_handler_t h)
     {
         static_assert(
-                std::is_same<bool (Plugin::*)(falcosecurity::event_writer&,
-                                              std::function<void(void)>),
+                std::is_same<bool (Plugin::*)(std::shared_ptr<async_event_handler_factory>),
                              decltype(&Plugin::start_async_events)>::value,
                 "expected signature: bool "
-                "start_async_events(falcosecurity::event_writer&,std::function<"
-                "void(void)>");
+                "start_async_events(std::shared_ptr<async_event_handler_factory>)");
         static_assert(std::is_same<bool (Plugin::*)() noexcept,
                                    decltype(&Plugin::stop_async_events)>::value,
                       "expected signature: bool stop_async_events() noexcept");
@@ -114,27 +113,14 @@ template<class Plugin, class Base> class plugin_mixin_async : public Base
                 return ss_plugin_rc::SS_PLUGIN_FAILURE;
             }
             m_async_started = false;
+            m_handler_factory.reset();
         }
 
         if(h)
         {
-            auto submit = [this, o, h]()
-            {
-                char err[PLUGIN_MAX_ERRLEN];
-                if(h(o, (const ss_plugin_event*)this->m_event_writer.get_buf(),
-                     err) != ss_plugin_rc::SS_PLUGIN_SUCCESS)
-                {
-                    std::string msg = "async event handler failure";
-                    if(*err != '\0')
-                    {
-                        msg += ": ";
-                        msg += err;
-                    }
-                    throw falcosecurity::plugin_exception(msg);
-                }
-            };
+            m_handler_factory = std::make_shared<async_event_handler_factory>(o, h);
             FALCOSECURITY_CATCH_ALL(Base::m_last_err_storage, {
-                if(!Plugin::start_async_events(m_event_writer, submit))
+                if(!Plugin::start_async_events(m_handler_factory))
                 {
                     Base::m_last_err_storage = "async events start failure";
                     return ss_plugin_rc::SS_PLUGIN_FAILURE;

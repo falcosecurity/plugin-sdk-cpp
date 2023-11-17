@@ -62,12 +62,11 @@ class my_plugin
     // (optional)
     std::vector<std::string> get_async_event_sources() { return {"syscall"}; }
 
-    bool start_async_events(falcosecurity::event_writer& w,
-                            std::function<void(void)> push)
+    bool start_async_events(std::shared_ptr<falcosecurity::async_event_handler_factory> f)
     {
         m_async_thread_quit = false;
         m_async_thread =
-                std::thread(&my_plugin::async_thread_loop, this, &w, push);
+                std::thread(&my_plugin::async_thread_loop, this, std::move(f->new_handler()));
         return true;
     }
 
@@ -81,8 +80,7 @@ class my_plugin
         return true;
     }
 
-    void async_thread_loop(falcosecurity::event_writer* w,
-                           std::function<void(void)> push) noexcept
+    void async_thread_loop(std::unique_ptr<falcosecurity::async_event_handler> h) noexcept
     {
         std::string msg;
         uint64_t count = 0;
@@ -95,8 +93,8 @@ class my_plugin
             enc.set_tid(1);
             enc.set_name("samplenotification");
             enc.set_data((void*)msg.c_str(), msg.size() + 1);
-            enc.encode(*w);
-            push();
+            enc.encode(h->writer());
+            h->push();
             std::this_thread::sleep_for(
                     std::chrono::milliseconds(m_async_sleep_ms));
         }
