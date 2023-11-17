@@ -98,10 +98,12 @@ template<class Plugin, class Base> class plugin_mixin_async : public Base
                             const ss_plugin_async_event_handler_t h)
     {
         static_assert(
-                std::is_same<bool (Plugin::*)(std::shared_ptr<async_event_handler_factory>),
+                std::is_same<bool (Plugin::*)(std::shared_ptr<
+                                              async_event_handler_factory>),
                              decltype(&Plugin::start_async_events)>::value,
                 "expected signature: bool "
-                "start_async_events(std::shared_ptr<async_event_handler_factory>)");
+                "start_async_events(std::shared_ptr<async_event_handler_"
+                "factory>)");
         static_assert(std::is_same<bool (Plugin::*)() noexcept,
                                    decltype(&Plugin::stop_async_events)>::value,
                       "expected signature: bool stop_async_events() noexcept");
@@ -118,7 +120,8 @@ template<class Plugin, class Base> class plugin_mixin_async : public Base
 
         if(h)
         {
-            m_handler_factory = std::make_shared<async_event_handler_factory>(o, h);
+            m_handler_factory =
+                    std::make_shared<async_event_handler_factory>(o, h);
             FALCOSECURITY_CATCH_ALL(Base::m_last_err_storage, {
                 if(!Plugin::start_async_events(m_handler_factory))
                 {
