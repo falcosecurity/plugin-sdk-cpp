@@ -31,3 +31,22 @@ FetchContent_MakeAvailable(plugin-sdk-cpp)
 target_link_library(${PROJECT_NAME} plugin-sdk-cpp)
 ####
 ```
+
+### Code formatting
+
+The code style convention of this repository can be found in [clang-format](https://clang.llvm.org/docs/ClangFormat.html).
+
+The chosen `clang-format` version is `15`, which can be installed alongside the LLVM toolchain or as stand-alone through package managers (e.g. `apt install clang-format-15`).
+
+It can also be found at:
+- https://github.com/llvm/llvm-project/releases/tag/llvmorg-15.0.7
+- https://github.com/ssciwr/clang-format-wheel/releases/tag/v15.0.7
+
+Most advanced editors and IDE can detect the `.clang-format` and let you format while working. Alternatively, you can run `clang-format` command manually as follows:
+
+```
+find . -iname *.h -o -iname *.cpp \
+    | grep -v "internal/deps/" \
+    | xargs clang-format-15 -i
+```
+
