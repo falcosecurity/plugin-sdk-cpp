@@ -35,10 +35,16 @@ limitations under the License.
     }                                                                          \
                                                                                \
     FALCOSECURITY_EXPORT                                                       \
-    const char* plugin_get_version() { return s_plugin_common.get_version(); } \
+    const char* plugin_get_version()                                           \
+    {                                                                          \
+        return s_plugin_common.get_version();                                  \
+    }                                                                          \
                                                                                \
     FALCOSECURITY_EXPORT                                                       \
-    const char* plugin_get_name() { return s_plugin_common.get_name(); }       \
+    const char* plugin_get_name()                                              \
+    {                                                                          \
+        return s_plugin_common.get_name();                                     \
+    }                                                                          \
                                                                                \
     FALCOSECURITY_EXPORT                                                       \
     const char* plugin_get_description()                                       \
@@ -47,7 +53,10 @@ limitations under the License.
     }                                                                          \
                                                                                \
     FALCOSECURITY_EXPORT                                                       \
-    const char* plugin_get_contact() { return s_plugin_common.get_contact(); } \
+    const char* plugin_get_contact()                                           \
+    {                                                                          \
+        return s_plugin_common.get_contact();                                  \
+    }                                                                          \
                                                                                \
     FALCOSECURITY_EXPORT                                                       \
     const char* plugin_get_init_schema(ss_plugin_schema_type* st)              \

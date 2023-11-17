@@ -180,15 +180,17 @@ class extract_request
     FALCOSECURITY_INLINE
     void set_value(bool v, size_t pos, bool copy)
     {
-        // The resize always ensure we have enough space in our vectors for 
+        // The resize always ensure we have enough space in our vectors for
         // data we have to copy.
         resize_result(pos);
         auto r = reinterpret_cast<_internal::ss_plugin_bool*>(m_result.data());
-        // Please note that every element of `m_result` is on at least 8 bytes (see union result).
-        // Here we are casting it to a vector of `uint32_t` so we are writing an element every 4 bytes.
+        // Please note that every element of `m_result` is on at least 8 bytes
+        // (see union result). Here we are casting it to a vector of `uint32_t`
+        // so we are writing an element every 4 bytes.
         r[pos] = (_internal::ss_plugin_bool)(v ? 1 : 0);
-        // `m_req` contains the pointer to the `ss_plugin_extract_field` array obtained
-        // from the framework. The sdk always returns a pointer to an internal array.
+        // `m_req` contains the pointer to the `ss_plugin_extract_field` array
+        // obtained from the framework. The sdk always returns a pointer to an
+        // internal array.
         m_req->res.boolean = &r[0];
         m_req->res_len = pos + 1;
     }

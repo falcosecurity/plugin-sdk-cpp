@@ -29,7 +29,10 @@ limitations under the License.
     static plugin_mixin<__t> s_plugin_sourcing;                                \
                                                                                \
     FALCOSECURITY_EXPORT                                                       \
-    uint32_t plugin_get_id() { return s_plugin_sourcing.get_id(); }            \
+    uint32_t plugin_get_id()                                                   \
+    {                                                                          \
+        return s_plugin_sourcing.get_id();                                     \
+    }                                                                          \
                                                                                \
     FALCOSECURITY_EXPORT                                                       \
     const char* plugin_get_event_source()                                      \
