@@ -22,6 +22,8 @@ FALCOSECURITY_LIBS_REVISION ?= 0.11.3
 FALCOSECURITY_LIBS_REPO     ?= falcosecurity/libs
 DEPS_INCLUDEDIR             := include/falcosecurity/internal/deps
 DEPS_PLUGIN_LIB_URL         := https://raw.githubusercontent.com/${FALCOSECURITY_LIBS_REPO}/${FALCOSECURITY_LIBS_REVISION}/userspace/plugin
+INCLUDE_DIR                 := include/falcosecurity
+INSTALL_DIR                 ?= /usr/include/falcosecurity
 
 examples_dir = $(shell ls -d examples/*/ | cut -f2 -d'/' | xargs)
 examples_build = $(addprefix example-,$(examples_dir))
@@ -63,3 +65,11 @@ $(DEPS_INCLUDEDIR)/plugin_api.h: $(DEPS_INCLUDEDIR)
 
 $(DEPS_INCLUDEDIR)/nlohmann/json.hpp: $(DEPS_INCLUDEDIR)
 	+$(CURL) -sLo $(DEPS_INCLUDEDIR)/nlohmann/json.hpp https://github.com/nlohmann/json/releases/download/v3.10.2/json.hpp
+
+.PHONY: install
+install: 
+	cp -r $(INCLUDE_DIR) $(INSTALL_DIR)
+
+.PHONY: uninstall
+uninstall:
+	rm -rf $(INSTALL_DIR)
