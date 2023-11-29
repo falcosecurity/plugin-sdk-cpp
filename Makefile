@@ -23,7 +23,7 @@ FALCOSECURITY_LIBS_REPO     ?= falcosecurity/libs
 DEPS_INCLUDEDIR             := include/falcosecurity/internal/deps
 DEPS_PLUGIN_LIB_URL         := https://raw.githubusercontent.com/${FALCOSECURITY_LIBS_REPO}/${FALCOSECURITY_LIBS_REVISION}/userspace/plugin
 INCLUDE_DIR                 := include/falcosecurity
-INSTALL_DIR                 ?= /usr/include/falcosecurity
+INSTALL_DIR                 ?= /usr/$(INCLUDE_DIR)
 
 examples_dir = $(shell ls -d examples/*/ | cut -f2 -d'/' | xargs)
 examples_build = $(addprefix example-,$(examples_dir))
