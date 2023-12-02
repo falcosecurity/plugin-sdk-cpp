@@ -72,9 +72,15 @@ class my_plugin
     {
         using st = falcosecurity::state_value_type;
         auto& t = i.tables();
-        m_threads_table = t.get_table("threads", st::SS_PLUGIN_ST_INT64);
-        m_threads_field_opencount = m_threads_table.get_field(
-                t.fields(), "open_evt_count", st::SS_PLUGIN_ST_UINT64);
+
+        // may throw in case of error, but exceptions are catched automatically
+        m_threads_table =
+                t.get_table("threads", st::SS_PLUGIN_ST_INT64).value();
+        m_threads_field_opencount =
+                m_threads_table
+                        .get_field(t.fields(), "open_evt_count",
+                                   st::SS_PLUGIN_ST_UINT64)
+                        .value();
         return true;
     }
 
@@ -91,16 +97,21 @@ class my_plugin
         {
             auto& tr = in.get_table_reader();
             auto tinfo = m_threads_table.get_entry(tr, (int64_t)evt.get_tid());
-            uint64_t count = 0;
-            m_threads_field_opencount.read_value(tr, tinfo, count);
-            req.set_value(count);
-            return true;
+            if(tinfo)
+            {
+                uint64_t count = 0;
+                if(m_threads_field_opencount.read_value(tr, tinfo.value(),
+                                                        count))
+                {
+                    req.set_value(count);
+                    return true;
+                }
+            }
+            return false;
         }
         default:
-            break;
+            return false;
         }
-
-        return false;
     }
 
     private:

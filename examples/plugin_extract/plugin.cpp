@@ -69,10 +69,8 @@ class my_plugin
             return true;
         }
         default:
-            break;
+            return false;
         }
-
-        return false;
     }
 };
 

@@ -19,6 +19,7 @@ limitations under the License.
 #include <falcosecurity/sdk.h>
 #include <thread>
 #include <atomic>
+#include <iostream>
 
 class my_plugin
 {
@@ -71,7 +72,7 @@ class my_plugin
         return true;
     }
 
-    bool stop_async_events() noexcept
+    bool stop_async_events()
     {
         m_async_thread_quit = true;
         if(m_async_thread.joinable())
@@ -88,7 +89,6 @@ class my_plugin
         uint64_t count = 0;
         falcosecurity::events::asyncevent_e_encoder enc;
 
-        // note: the code below can throw exceptions and they should be catched
         while(!m_async_thread_quit)
         {
             msg = "notification #" + std::to_string(count++);
@@ -96,7 +96,12 @@ class my_plugin
             enc.set_name("samplenotification");
             enc.set_data((void*)msg.c_str(), msg.size() + 1);
             enc.encode(h->writer());
-            h->push();
+            auto res = h->push();
+            if(!res)
+            {
+                std::cerr << "could not push async event: "
+                          << res.error().value();
+            }
             std::this_thread::sleep_for(
                     std::chrono::milliseconds(m_async_sleep_ms));
         }
