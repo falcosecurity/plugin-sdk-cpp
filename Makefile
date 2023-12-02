@@ -16,14 +16,17 @@
 # limitations under the License.
 #
 
-CURL ?= curl
 
-FALCOSECURITY_LIBS_REVISION ?= 0.11.3
-FALCOSECURITY_LIBS_REPO     ?= falcosecurity/libs
+GH_CONTENT_PREFIX           := https://raw.githubusercontent.com/
 DEPS_INCLUDEDIR             := include/falcosecurity/internal/deps
-DEPS_PLUGIN_LIB_URL         := https://raw.githubusercontent.com/${FALCOSECURITY_LIBS_REPO}/${FALCOSECURITY_LIBS_REVISION}/userspace/plugin
 INCLUDE_DIR                 := include/falcosecurity
+
+CURL                        ?= curl
 INSTALL_DIR                 ?= /usr/$(INCLUDE_DIR)
+FALCOSECURITY_LIBS_REPO     ?= falcosecurity/libs
+FALCOSECURITY_LIBS_VER      ?= 0.11.3
+NLOHMANN_VER                ?= 3.10.2
+TL_EXPECTED_VER             ?= 1.1.0
 
 examples_dir = $(shell ls -d examples/*/ | cut -f2 -d'/' | xargs)
 examples_build = $(addprefix example-,$(examples_dir))
@@ -34,37 +37,21 @@ all: examples
 
 .PHONY: clean
 clean: $(examples_clean)
-	+rm -fr $(DEPS_INCLUDEDIR) $(LIBDIR) $(OBJFILES)
+	rm -fr $(DEPS_INCLUDEDIR) $(LIBDIR) $(OBJFILES)
 
 .PHONY: format
 format:
-	+find ./include -iname *.h -o -iname *.cpp | grep -v "/deps/" | xargs clang-format -i
-	+find ./examples -iname *.h -o -iname *.cpp | grep -v "/deps/" | xargs clang-format -i
-
-.PHONY: deps
-deps: $(DEPS_INCLUDEDIR)/plugin_types.h $(DEPS_INCLUDEDIR)/plugin_api.h $(DEPS_INCLUDEDIR)/nlohmann/json.hpp
+	find ./include -iname *.h -o -iname *.cpp | grep -v "/deps/" | xargs clang-format -i
+	find ./examples -iname *.h -o -iname *.cpp | grep -v "/deps/" | xargs clang-format -i
 
 .PHONY: examples
 examples: $(examples_build)
 
 example-%: deps
-	+@cd examples/$* && make
+	+@make -C examples/$*
 
 clean-example-%:
-	+@cd examples/$* && make clean
-
-$(DEPS_INCLUDEDIR):
-	+mkdir -p $@
-	+mkdir -p $@/nlohmann
-
-$(DEPS_INCLUDEDIR)/plugin_types.h: $(DEPS_INCLUDEDIR)
-	+$(CURL) -Lso $(DEPS_INCLUDEDIR)/plugin_types.h $(DEPS_PLUGIN_LIB_URL)/plugin_types.h
-
-$(DEPS_INCLUDEDIR)/plugin_api.h: $(DEPS_INCLUDEDIR)
-	+$(CURL) -Lso $(DEPS_INCLUDEDIR)/plugin_api.h $(DEPS_PLUGIN_LIB_URL)/plugin_api.h
-
-$(DEPS_INCLUDEDIR)/nlohmann/json.hpp: $(DEPS_INCLUDEDIR)
-	+$(CURL) -sLo $(DEPS_INCLUDEDIR)/nlohmann/json.hpp https://github.com/nlohmann/json/releases/download/v3.10.2/json.hpp
+	+@make -C examples/$* clean
 
 .PHONY: install
 install: 
@@ -73,3 +60,26 @@ install:
 .PHONY: uninstall
 uninstall:
 	rm -rf $(INSTALL_DIR)
+
+.PHONY: deps
+deps: $(DEPS_INCLUDEDIR)/plugin_types.h \
+      $(DEPS_INCLUDEDIR)/plugin_api.h \
+      $(DEPS_INCLUDEDIR)/nlohmann/json.hpp \
+      $(DEPS_INCLUDEDIR)/tl/expected.hpp
+
+$(DEPS_INCLUDEDIR):
+	+mkdir -p $@
+
+$(DEPS_INCLUDEDIR)/plugin_types.h: $(DEPS_INCLUDEDIR)
+	+$(CURL) -Lso $(DEPS_INCLUDEDIR)/plugin_types.h ${GH_CONTENT_PREFIX}/${FALCOSECURITY_LIBS_REPO}/${FALCOSECURITY_LIBS_VER}/userspace/plugin/plugin_types.h
+
+$(DEPS_INCLUDEDIR)/plugin_api.h: $(DEPS_INCLUDEDIR)
+	+$(CURL) -Lso $(DEPS_INCLUDEDIR)/plugin_api.h ${GH_CONTENT_PREFIX}/${FALCOSECURITY_LIBS_REPO}/${FALCOSECURITY_LIBS_VER}/userspace/plugin/plugin_api.h
+
+$(DEPS_INCLUDEDIR)/nlohmann/json.hpp: $(DEPS_INCLUDEDIR)
+	+mkdir -p $(DEPS_INCLUDEDIR)/nlohmann
+	+$(CURL) -sLo $(DEPS_INCLUDEDIR)/nlohmann/json.hpp https://github.com/nlohmann/json/releases/download/v${NLOHMANN_VER}/json.hpp
+
+$(DEPS_INCLUDEDIR)/tl/expected.hpp: $(DEPS_INCLUDEDIR)
+	+mkdir -p $(DEPS_INCLUDEDIR)/tl
+	+$(CURL) -sLo $(DEPS_INCLUDEDIR)/tl/expected.hpp ${GH_CONTENT_PREFIX}/TartanLlama/expected/v${TL_EXPECTED_VER}/include/tl/expected.hpp
