@@ -19,6 +19,7 @@ limitations under the License.
 #pragma once
 
 #include <falcosecurity/internal/deps/nlohmann/json.hpp>
+#include <falcosecurity/internal/deps/tl/expected.hpp>
 
 #include <inttypes.h>
 

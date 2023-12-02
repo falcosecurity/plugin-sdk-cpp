@@ -20,6 +20,7 @@ limitations under the License.
 
 #include <falcosecurity/events/types.h>
 #include <falcosecurity/exception.h>
+#include <falcosecurity/error.h>
 #include <falcosecurity/internal/deps.h>
 #include <cstdbool>
 #include <cstdint>
