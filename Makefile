@@ -22,6 +22,7 @@ DEPS_INCLUDEDIR             := include/falcosecurity/internal/deps
 INCLUDE_DIR                 := include/falcosecurity
 
 CURL                        ?= curl
+CLANG_FORMAT                ?= clang-format
 INSTALL_DIR                 ?= /usr/$(INCLUDE_DIR)
 FALCOSECURITY_LIBS_REPO     ?= falcosecurity/libs
 FALCOSECURITY_LIBS_VER      ?= 0.11.3
@@ -41,8 +42,8 @@ clean: $(examples_clean)
 
 .PHONY: format
 format:
-	find ./include -iname *.h -o -iname *.cpp | grep -v "/deps/" | xargs clang-format -i
-	find ./examples -iname *.h -o -iname *.cpp | grep -v "/deps/" | xargs clang-format -i
+	find ./include -iname *.h -o -iname *.cpp | grep -v "/deps/" | xargs ${CLANG_FORMAT} -i
+	find ./examples -iname *.h -o -iname *.cpp | grep -v "/deps/" | xargs ${CLANG_FORMAT} -i
 
 .PHONY: examples
 examples: $(examples_build)

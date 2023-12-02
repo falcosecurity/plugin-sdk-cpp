@@ -42,7 +42,7 @@ It can also be found at:
 - https://github.com/llvm/llvm-project/releases/tag/llvmorg-15.0.7
 - https://github.com/ssciwr/clang-format-wheel/releases/tag/v15.0.7
 
-Most advanced editors and IDE can detect the `.clang-format` and let you format while working. Alternatively, you can run `clang-format` command manually as follows:
+Most advanced editors and IDE can detect the `.clang-format` and let you format while working. Alternatively, you can either run `make format`, or run `clang-format` command manually as follows:
 
 ```
 find . -iname *.h -o -iname *.cpp \
