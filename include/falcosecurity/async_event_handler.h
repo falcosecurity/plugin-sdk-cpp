@@ -50,8 +50,7 @@ class async_event_handler
     FALCOSECURITY_INLINE
     event_writer& writer() { return m_writer; }
 
-    FALCOSECURITY_INLINE
-    void push()
+    [[nodiscard]] FALCOSECURITY_INLINE falcosecurity::res<void> push()
     {
         char err[PLUGIN_MAX_ERRLEN];
         if(m_handler(m_owner,
@@ -66,8 +65,9 @@ class async_event_handler
                 msg += ": ";
                 msg += err;
             }
-            throw falcosecurity::plugin_exception(msg);
+            return falcosecurity::err(msg);
         }
+        return {};
     }
 
     private:

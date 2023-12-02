@@ -19,7 +19,6 @@ limitations under the License.
 #pragma once
 
 #include <falcosecurity/events/types.h>
-#include <falcosecurity/exception.h>
 #include <falcosecurity/error.h>
 #include <falcosecurity/internal/deps.h>
 #include <cstdbool>
@@ -149,8 +148,8 @@ static inline std::string to_string(result_code t)
     case result_code::SS_PLUGIN_NOT_SUPPORTED:
         return "not supported";
     default:
-        throw falcosecurity::plugin_exception("unknown result code: " +
-                                              std::to_string((size_t)t));
+        throw std::invalid_argument("unknown result code: " +
+                                    std::to_string((size_t)t));
     }
 }
 
@@ -163,8 +162,8 @@ static inline std::string to_string(init_schema_type t)
     case init_schema_type::SS_PLUGIN_SCHEMA_JSON:
         return "json";
     default:
-        throw falcosecurity::plugin_exception("unknown init schema type: " +
-                                              std::to_string((size_t)t));
+        throw std::invalid_argument("unknown init schema type: " +
+                                    std::to_string((size_t)t));
     }
 }
 
@@ -187,8 +186,8 @@ static inline std::string to_string(field_value_type t)
     case field_value_type::FTYPE_IPNET:
         return "ipnet";
     default:
-        throw falcosecurity::plugin_exception("unknown field value type: " +
-                                              std::to_string((size_t)t));
+        throw std::invalid_argument("unknown field value type: " +
+                                    std::to_string((size_t)t));
     }
 }
 
@@ -217,8 +216,8 @@ static inline std::string to_string(state_value_type t)
     case state_value_type::SS_PLUGIN_ST_BOOL:
         return "bool";
     default:
-        throw falcosecurity::plugin_exception("unknown state value type: " +
-                                              std::to_string((size_t)t));
+        throw std::invalid_argument("unknown state value type: " +
+                                    std::to_string((size_t)t));
     }
 }
 
