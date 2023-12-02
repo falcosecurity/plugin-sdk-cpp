@@ -108,7 +108,7 @@ template<typename T> class err_msg_container
     {
         if(m_val == nullptr)
         {
-            throw std::runtime_error("error value is null");
+            FALCOSECURITY_THROW(std::runtime_error("error value is null"));
         }
     }
 

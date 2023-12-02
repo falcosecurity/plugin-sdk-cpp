@@ -148,8 +148,8 @@ static inline std::string to_string(result_code t)
     case result_code::SS_PLUGIN_NOT_SUPPORTED:
         return "not supported";
     default:
-        throw std::invalid_argument("unknown result code: " +
-                                    std::to_string((size_t)t));
+        FALCOSECURITY_THROW(std::invalid_argument("unknown result code: " +
+                                                  std::to_string((size_t)t)));
     }
 }
 
@@ -162,8 +162,8 @@ static inline std::string to_string(init_schema_type t)
     case init_schema_type::SS_PLUGIN_SCHEMA_JSON:
         return "json";
     default:
-        throw std::invalid_argument("unknown init schema type: " +
-                                    std::to_string((size_t)t));
+        FALCOSECURITY_THROW(std::invalid_argument("unknown init schema type: " +
+                                                  std::to_string((size_t)t)));
     }
 }
 
@@ -186,8 +186,8 @@ static inline std::string to_string(field_value_type t)
     case field_value_type::FTYPE_IPNET:
         return "ipnet";
     default:
-        throw std::invalid_argument("unknown field value type: " +
-                                    std::to_string((size_t)t));
+        FALCOSECURITY_THROW(std::invalid_argument("unknown field value type: " +
+                                                  std::to_string((size_t)t)));
     }
 }
 
@@ -216,8 +216,8 @@ static inline std::string to_string(state_value_type t)
     case state_value_type::SS_PLUGIN_ST_BOOL:
         return "bool";
     default:
-        throw std::invalid_argument("unknown state value type: " +
-                                    std::to_string((size_t)t));
+        FALCOSECURITY_THROW(std::invalid_argument("unknown state value type: " +
+                                                  std::to_string((size_t)t)));
     }
 }
 

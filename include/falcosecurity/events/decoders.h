@@ -41,10 +41,11 @@ class pluginevent_e_decoder
     {
         if(r.get_type() != 322)
         {
-            throw std::invalid_argument("invalid event type conversion in "
-                                        "event decoder: requested=" +
-                                        std::to_string(322) + ", actual=" +
-                                        std::to_string(r.get_type()));
+            FALCOSECURITY_THROW(std::invalid_argument(
+                    "invalid event type conversion in "
+                    "event decoder: requested=" +
+                    std::to_string(322) +
+                    ", actual=" + std::to_string(r.get_type())));
         }
 
         uint8_t* parambuf = ((uint8_t*)r.get_buf() + 26);
@@ -89,10 +90,11 @@ class asyncevent_e_decoder
     {
         if(r.get_type() != 402)
         {
-            throw std::invalid_argument("invalid event type conversion in "
-                                        "event decoder: requested=" +
-                                        std::to_string(402) + ", actual=" +
-                                        std::to_string(r.get_type()));
+            FALCOSECURITY_THROW(std::invalid_argument(
+                    "invalid event type conversion in "
+                    "event decoder: requested=" +
+                    std::to_string(402) +
+                    ", actual=" + std::to_string(r.get_type())));
         }
 
         uint8_t* parambuf = ((uint8_t*)r.get_buf() + 26);

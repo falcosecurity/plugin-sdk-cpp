@@ -17,6 +17,7 @@ limitations under the License.
 */
 
 #include <falcosecurity/sdk.h>
+#include <iostream>
 
 // todo(jasondellaluce): support these in the SDK
 using _et = falcosecurity::event_type;
@@ -76,11 +77,18 @@ class my_plugin
         // may throw in case of error, but exceptions are catched automatically
         m_threads_table =
                 t.get_table("threads", st::SS_PLUGIN_ST_INT64).value();
-        m_threads_field_opencount =
-                m_threads_table
-                        .get_field(t.fields(), "open_evt_count",
-                                   st::SS_PLUGIN_ST_UINT64)
-                        .value();
+        auto field = m_threads_table.get_field(t.fields(), "open_evt_count",
+                                               st::SS_PLUGIN_ST_UINT64);
+        if(field)
+        {
+            m_threads_field_opencount = field.value();
+        }
+        else
+        {
+            std::cerr << "can't access `open_evt_count` field in thread infos, "
+                         "`sample.open_count` will be not available"
+                      << std::endl;
+        }
         return true;
     }
 

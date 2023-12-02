@@ -72,7 +72,7 @@ class my_plugin
         return true;
     }
 
-    bool stop_async_events()
+    bool stop_async_events() noexcept
     {
         m_async_thread_quit = true;
         if(m_async_thread.joinable())
