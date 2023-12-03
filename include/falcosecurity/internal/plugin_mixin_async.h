@@ -20,7 +20,6 @@ limitations under the License.
 
 #include <falcosecurity/event_writer.h>
 #include <falcosecurity/events/encoders.h>
-#include <falcosecurity/exception.h>
 #include <falcosecurity/internal/deps.h>
 #include <falcosecurity/internal/hacks.h>
 #include <falcosecurity/types.h>

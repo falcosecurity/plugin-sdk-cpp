@@ -35,6 +35,12 @@ limitations under the License.
 
 #define FALCOSECURITY_EXPORT extern "C"
 
+#define FALCOSECURITY_THROW(__exc)                                             \
+    {                                                                          \
+        FALCOSECURITY_ASSERT(false, __exc.what());                             \
+        throw __exc;                                                           \
+    }
+
 #define FALCOSECURITY_INLINE __attribute__((always_inline)) inline
 
 #define FALCOSECURITY_CATCH_ALL(errdest, block)                                \

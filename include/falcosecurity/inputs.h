@@ -52,8 +52,9 @@ class table_init_input
     FALCOSECURITY_INLINE
     table_fields& fields() { return m_fielder; }
 
-    FALCOSECURITY_INLINE
-    std::vector<table_info> list_tables()
+    [[nodiscard]] FALCOSECURITY_INLINE
+            falcosecurity::res<std::vector<table_info>>
+            list_tables()
     {
         uint32_t size = 0;
         auto res = m_input->tables->list_tables(m_owner, &size);
@@ -66,7 +67,7 @@ class table_init_input
                 msg += ": ";
                 msg += err;
             }
-            throw plugin_exception(msg);
+            return falcosecurity::err(err);
         }
         std::vector<table_info> infos;
         for(uint32_t i = 0; i < size; i++)
@@ -76,8 +77,8 @@ class table_init_input
         return infos;
     }
 
-    FALCOSECURITY_INLINE
-    table get_table(const std::string& name, state_value_type key_type)
+    [[nodiscard]] FALCOSECURITY_INLINE falcosecurity::res<table>
+    get_table(const std::string& name, state_value_type key_type)
     {
         auto res = m_input->tables->get_table(
                 m_owner, name.c_str(),
@@ -91,15 +92,15 @@ class table_init_input
                 msg += ": ";
                 msg += err;
             }
-            throw plugin_exception(msg);
+            return falcosecurity::err(msg);
         }
-        return table(name, key_type, res);
+        return std::move(table(name, key_type, res));
     }
 
     // todo(jasondellaluce): this is still experimental and we may want to add
     // an ad-hoc wrapper for plugin-owned tables too
-    FALCOSECURITY_INLINE
-    void add_table(const table_input& in)
+    [[nodiscard]] FALCOSECURITY_INLINE falcosecurity::res<void>
+    add_table(const table_input& in)
     {
         auto res = m_input->tables->add_table(
                 m_owner,
@@ -113,8 +114,9 @@ class table_init_input
                 msg += ": ";
                 msg += err;
             }
-            throw plugin_exception(msg);
+            return falcosecurity::err(msg);
         }
+        return {};
     }
 
     private:

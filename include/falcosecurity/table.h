@@ -240,8 +240,8 @@ class table_field
     }
 
     template<typename T>
-    FALCOSECURITY_INLINE void read_value(const table_reader& r, table_entry e,
-                                         T& out)
+    [[nodiscard]] FALCOSECURITY_INLINE falcosecurity::res<void>
+    read_value(const table_reader& r, table_entry e, T& out)
     {
         check_type(out);
         auto res = r.m_reader->read_entry_field(m_table, e, m_field, &m_data);
@@ -254,14 +254,15 @@ class table_field
                 msg += ": ";
                 msg += err;
             }
-            throw plugin_exception(msg);
+            return falcosecurity::err(msg);
         }
         _internal::read_state_data<T>(m_data, out);
+        return {};
     }
 
     template<typename T>
-    FALCOSECURITY_INLINE void write_value(const table_writer& w, table_entry e,
-                                          const T& in)
+    [[nodiscard]] FALCOSECURITY_INLINE falcosecurity::res<void>
+    write_value(const table_writer& w, table_entry e, const T& in)
     {
         check_type(in);
         _internal::write_state_data<T>(m_data, in);
@@ -275,8 +276,9 @@ class table_field
                 msg += ": ";
                 msg += err;
             }
-            throw plugin_exception(msg);
+            return falcosecurity::err(msg);
         }
+        return {};
     }
 
     private:
@@ -326,21 +328,15 @@ class table
         return static_cast<state_value_type>(m_key_type);
     }
 
-    FALCOSECURITY_INLINE
-    std::vector<table_field_info> list_fields(const table_fields& f)
+    [[nodiscard]] FALCOSECURITY_INLINE
+            falcosecurity::res<std::vector<table_field_info>>
+            list_fields(const table_fields& f)
     {
         uint32_t size = 0;
         auto res = f.m_fields->list_table_fields(m_table, &size);
         if(!res)
         {
-            std::string msg = "can't list table fields";
-            auto err = f.m_get_owner_last_error(f.m_owner);
-            if(err)
-            {
-                msg += ": ";
-                msg += err;
-            }
-            throw plugin_exception(msg);
+            return append_writer_err(f, "can't list table fields");
         }
         std::vector<table_field_info> infos;
         for(uint32_t i = 0; i < size; i++)
@@ -351,46 +347,32 @@ class table
         return infos;
     }
 
-    FALCOSECURITY_INLINE
-    table_field get_field(const table_fields& f, const std::string& name,
-                          state_value_type t)
+    [[nodiscard]] FALCOSECURITY_INLINE falcosecurity::res<table_field>
+    get_field(const table_fields& f, const std::string& name,
+              state_value_type t)
     {
         auto res = f.m_fields->get_table_field(
                 m_table, name.c_str(),
                 static_cast<_internal::ss_plugin_state_type>(t));
         if(!res)
         {
-            std::string msg = "can't get field";
-            auto err = f.m_get_owner_last_error(f.m_owner);
-            if(err)
-            {
-                msg += ": ";
-                msg += err;
-            }
-            throw plugin_exception(msg);
+            return append_writer_err(f, "can't get field");
         }
         return table_field(name,
                            static_cast<_internal::ss_plugin_state_type>(t),
                            m_table, res);
     }
 
-    FALCOSECURITY_INLINE
-    table_field add_field(const table_fields& f, const std::string& name,
-                          state_value_type t)
+    [[nodiscard]] FALCOSECURITY_INLINE falcosecurity::res<table_field>
+    add_field(const table_fields& f, const std::string& name,
+              state_value_type t)
     {
         auto res = f.m_fields->add_table_field(
                 m_table, name.c_str(),
                 static_cast<_internal::ss_plugin_state_type>(t));
         if(!res)
         {
-            std::string msg = "can't add field";
-            auto err = f.m_get_owner_last_error(f.m_owner);
-            if(err)
-            {
-                msg += ": ";
-                msg += err;
-            }
-            throw plugin_exception(msg);
+            return append_writer_err(f, "can't add field");
         }
         return table_field(name,
                            static_cast<_internal::ss_plugin_state_type>(t),
@@ -400,34 +382,32 @@ class table
     FALCOSECURITY_INLINE
     const std::string& get_name() { return m_name; }
 
-    FALCOSECURITY_INLINE
-    const std::string& get_name(const table_reader& r)
+    [[nodiscard]] FALCOSECURITY_INLINE falcosecurity::res<std::string>
+    get_name(const table_reader& r)
     {
         auto res = r.m_reader->get_table_name(m_table);
         if(!res)
         {
-            std::string msg = "can't get table name";
-            auto err = r.m_get_owner_last_error(r.m_owner);
-            if(err)
-            {
-                msg += ": ";
-                msg += err;
-            }
-            throw plugin_exception(msg);
+            return append_writer_err(r, "can't get table name");
         }
         m_name.assign(res);
         return m_name;
     }
 
-    FALCOSECURITY_INLINE
-    uint64_t get_size(const table_reader& r)
+    [[nodiscard]] FALCOSECURITY_INLINE falcosecurity::res<uint64_t>
+    get_size(const table_reader& r)
     {
-        return r.m_reader->get_table_size(m_table);
+        auto v = r.m_reader->get_table_size(m_table);
+        if(v == (uint64_t)-1)
+        {
+            return append_writer_err(r, "can't get table size");
+        }
+        return v;
     }
 
     template<typename T>
-    FALCOSECURITY_INLINE table_entry get_entry(const table_reader& r,
-                                               const T& key)
+    [[nodiscard]] FALCOSECURITY_INLINE falcosecurity::res<table_entry>
+    get_entry(const table_reader& r, const T& key)
     {
         check_type(key);
         _internal::write_state_data<T>(m_data, key);
@@ -435,76 +415,50 @@ class table
                 r.m_reader->get_table_entry(m_table, &m_data));
         if(!res)
         {
-            std::string msg = "can't get table entry";
-            auto err = r.m_get_owner_last_error(r.m_owner);
-            if(err)
-            {
-                msg += ": ";
-                msg += err;
-            }
-            throw plugin_exception(msg);
+            return append_writer_err(r, "can't get table entry");
         }
         return res;
     }
 
-    FALCOSECURITY_INLINE
-    void clear(const table_writer& w)
+    [[nodiscard]] FALCOSECURITY_INLINE falcosecurity::res<void>
+    clear(const table_writer& w)
     {
         auto res = w.m_writer->clear_table(m_table);
         if(res != result_code::SS_PLUGIN_SUCCESS)
         {
-            std::string msg = "can't clear table";
-            auto err = w.m_get_owner_last_error(w.m_owner);
-            if(err)
-            {
-                msg += ": ";
-                msg += err;
-            }
-            throw plugin_exception(msg);
+            return append_writer_err(w, "can't clear table");
         }
+        return {};
     }
 
     template<typename T>
-    FALCOSECURITY_INLINE void erase_entry(const table_writer& w, const T& key)
+    [[nodiscard]] FALCOSECURITY_INLINE falcosecurity::res<void>
+    erase_entry(const table_writer& w, const T& key)
     {
         check_type(key);
         _internal::write_state_data<T>(m_data, key);
         auto res = w.m_writer->erase_table_entry(m_table, &m_data);
         if(res != result_code::SS_PLUGIN_SUCCESS)
         {
-            std::string msg = "can't erase table entry";
-            auto err = w.m_get_owner_last_error(w.m_owner);
-            if(err)
-            {
-                msg += ": ";
-                msg += err;
-            }
-            throw plugin_exception(msg);
+            return append_writer_err(w, "can't erase table entry");
         }
+        return {};
     }
 
-    FALCOSECURITY_INLINE
-    table_stale_entry create_entry(const table_writer& w)
+    [[nodiscard]] FALCOSECURITY_INLINE falcosecurity::res<table_stale_entry>
+    create_entry(const table_writer& w)
     {
         auto res = w.m_writer->create_table_entry(m_table);
         if(!res)
         {
-            std::string msg = "can't create table entry";
-            auto err = w.m_get_owner_last_error(w.m_owner);
-            if(err)
-            {
-                msg += ": ";
-                msg += err;
-            }
-            throw plugin_exception(msg);
+            return append_writer_err(w, "can't create table entry");
         }
         return table_stale_entry(res, m_table, w);
     }
 
     template<typename T>
-    FALCOSECURITY_INLINE table_entry add_entry(const table_writer& w,
-                                               const T& key,
-                                               table_stale_entry&& e)
+    [[nodiscard]] FALCOSECURITY_INLINE falcosecurity::res<table_entry>
+    add_entry(const table_writer& w, const T& key, table_stale_entry&& e)
     {
         check_type(key);
         _internal::write_state_data<T>(m_data, key);
@@ -512,14 +466,7 @@ class table
                 w.m_writer->add_table_entry(m_table, &m_data, e.m_entry));
         if(!res)
         {
-            std::string msg = "can't add table entry";
-            auto err = w.m_get_owner_last_error(w.m_owner);
-            if(err)
-            {
-                msg += ": ";
-                msg += err;
-            }
-            throw plugin_exception(msg);
+            return append_writer_err(w, "can't add table entry");
         }
         e.m_entry = NULL;
         return res;
@@ -535,6 +482,21 @@ class table
                         falcosecurity::to_string(
                                 (falcosecurity::state_value_type)m_key_type));
     }
+
+    template<typename T>
+    FALCOSECURITY_INLINE falcosecurity::err
+    append_writer_err(const T& w, const std::string& e) const
+    {
+        std::string msg = e;
+        auto err = w.m_get_owner_last_error(w.m_owner);
+        if(err)
+        {
+            msg += ": ";
+            msg += err;
+        }
+        return falcosecurity::err(std::move(msg));
+    }
+
     std::string m_name;
     _internal::ss_plugin_state_type m_key_type;
     _internal::ss_plugin_table_t* m_table;
