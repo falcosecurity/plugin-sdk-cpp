@@ -96,8 +96,6 @@ typedef enum ss_plugin_schema_type
 #if defined _MSC_VER
 #pragma pack(push)
 #pragma pack(1)
-#elif defined __sun
-#pragma pack(1)
 #else
 #pragma pack(push, 1)
 #endif
@@ -111,11 +109,7 @@ struct ss_plugin_event {
 	uint16_t type; /* the event type */
 	uint32_t nparams; /* the number of parameters of the event */
 };
-#if defined __sun
-#pragma pack()
-#else
 #pragma pack(pop)
-#endif
 typedef struct ss_plugin_event ss_plugin_event;
 
 // This struct represents an event provided by the framework to the plugin
@@ -284,6 +278,20 @@ typedef void ss_plugin_t;
 // and it treats is as opaque.
 //
 typedef void ss_instance_t;
+
+//
+// Severity available in the logging facility provided by the framework
+typedef enum ss_plugin_log_severity
+{
+	SS_PLUGIN_LOG_SEV_FATAL = 1,
+	SS_PLUGIN_LOG_SEV_CRITICAL = 2,
+	SS_PLUGIN_LOG_SEV_ERROR = 3,
+	SS_PLUGIN_LOG_SEV_WARNING = 4,
+	SS_PLUGIN_LOG_SEV_NOTICE = 5,
+	SS_PLUGIN_LOG_SEV_INFO = 6,
+	SS_PLUGIN_LOG_SEV_DEBUG = 7,
+	SS_PLUGIN_LOG_SEV_TRACE = 8,
+} ss_plugin_log_severity;
 
 #ifdef __cplusplus
 }

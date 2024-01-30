@@ -28,8 +28,9 @@ extern "C" {
 //
 // API versions of this plugin framework
 //
+// todo(jasondellaluce): when/if major changes to v4, check and solve all todos
 #define PLUGIN_API_VERSION_MAJOR 3
-#define PLUGIN_API_VERSION_MINOR 0
+#define PLUGIN_API_VERSION_MINOR 3
 #define PLUGIN_API_VERSION_PATCH 0
 
 //
@@ -44,6 +45,16 @@ extern "C" {
 // The max length of errors returned by a plugin in some of its API symbols.
 //
 #define PLUGIN_MAX_ERRLEN	1024
+
+// Supported by the API but deprecated. Use the extended version ss_plugin_table_reader_vtable_ext instead.
+// todo(jasondellaluce): when/if major changes to v4, remove this and
+// give this name to the associated *_ext struct.
+typedef struct
+{
+	ss_plugin_table_fieldinfo* (*list_table_fields)(ss_plugin_table_t* t, uint32_t* nfields);
+	ss_plugin_table_field_t* (*get_table_field)(ss_plugin_table_t* t, const char* name, ss_plugin_state_type data_type);
+	ss_plugin_table_field_t* (*add_table_field)(ss_plugin_table_t* t, const char* name, ss_plugin_state_type data_type);
+} ss_plugin_table_fields_vtable;
 
 // Vtable for controlling and the fields for the entries of a state table.
 // This allows discovering the fields available in the table, defining new ones,
@@ -73,10 +84,29 @@ typedef struct
 	// Returns NULL in case of issues (including when a field is defined multiple
 	// times with different data types).
 	ss_plugin_table_field_t* (*add_table_field)(ss_plugin_table_t* t, const char* name, ss_plugin_state_type data_type);
-} ss_plugin_table_fields_vtable;
+} ss_plugin_table_fields_vtable_ext;
 
-// Vtable for controlling a state table for read operations.
-// todo(jasondellaluce): support looping over a table
+// Supported by the API but deprecated. Use the extended version ss_plugin_table_reader_vtable_ext instead.
+// todo(jasondellaluce): when/if major changes to v4, remove this and
+// give this name to the associated *_ext struct.
+typedef struct
+{
+	const char*	(*get_table_name)(ss_plugin_table_t* t);
+	uint64_t (*get_table_size)(ss_plugin_table_t* t);
+	ss_plugin_table_entry_t* (*get_table_entry)(ss_plugin_table_t* t, const ss_plugin_state_data* key);
+	ss_plugin_rc (*read_entry_field)(ss_plugin_table_t* t, ss_plugin_table_entry_t* e, const ss_plugin_table_field_t* f, ss_plugin_state_data* out);
+} ss_plugin_table_reader_vtable;
+
+// Opaque pointer to the state data relative to a state table iteration.
+// This is passed initially by the invoker when starting the iteration, and
+// is then dispatched to the iterator for each of the entries of the table.
+typedef void ss_plugin_table_iterator_state_t;
+
+// Iterator function callback used by a plugin for looping through all the
+// entries of a given state table. Returns true if the iteration should
+// proceed to the next element, or false in case of break out.
+typedef ss_plugin_bool (*ss_plugin_table_iterator_func_t)(ss_plugin_table_iterator_state_t* s, ss_plugin_table_entry_t* e);
+
 typedef struct
 {
 	// Returns the table's name, or NULL in case of error.
@@ -90,6 +120,8 @@ typedef struct
 	// Returns an opaque pointer to an entry present in the table at the given
 	// key, or NULL in case of issues (including if no entry is found at the
 	// given key). The returned pointer is owned by the table's owner.
+	// Every non-NULL returned entry must be released by invoking release_table_entry()
+	// once it becomes no more used by the invoker.
 	ss_plugin_table_entry_t* (*get_table_entry)(ss_plugin_table_t* t, const ss_plugin_state_data* key);
 	//
 	// Reads the value of an entry field from a table's entry.
@@ -97,7 +129,30 @@ typedef struct
 	// The read value is stored in the "out" parameter.
 	// Returns SS_PLUGIN_SUCCESS if successful, and SS_PLUGIN_FAILURE otherwise.
 	ss_plugin_rc (*read_entry_field)(ss_plugin_table_t* t, ss_plugin_table_entry_t* e, const ss_plugin_table_field_t* f, ss_plugin_state_data* out);
-} ss_plugin_table_reader_vtable;
+	//
+	// Releases a table entry obtained by from previous invocation of get_table_entry().
+	// After being released, the same table entry cannot be reused by the invoker.
+	// However, the same entry can be re-obtained through an invocation of get_table_entry().
+	void (*release_table_entry)(ss_plugin_table_t* t, ss_plugin_table_entry_t* e);
+	//
+	// Iterates through all the entries of a table, invoking the interation
+	// callback function for each of them. Returns false in case of failure or
+	// iteration break-out, and true otherwise.
+	ss_plugin_bool (*iterate_entries)(ss_plugin_table_t* t, ss_plugin_table_iterator_func_t it, ss_plugin_table_iterator_state_t* s);
+} ss_plugin_table_reader_vtable_ext;
+
+// Supported by the API but deprecated. Use the extended version ss_plugin_table_writer_vtable_ext instead.
+// todo(jasondellaluce): when/if major changes to v4, remove this and
+// give this name to the associated *_ext struct.
+typedef struct
+{
+	ss_plugin_rc (*clear_table)(ss_plugin_table_t* t);
+	ss_plugin_rc (*erase_table_entry)(ss_plugin_table_t* t, const ss_plugin_state_data* key);
+	ss_plugin_table_entry_t* (*create_table_entry)(ss_plugin_table_t* t);
+	void (*destroy_table_entry)(ss_plugin_table_t* t, ss_plugin_table_entry_t* e);
+	ss_plugin_table_entry_t* (*add_table_entry)(ss_plugin_table_t* t, const ss_plugin_state_data* key, ss_plugin_table_entry_t* entry);
+	ss_plugin_rc (*write_entry_field)(ss_plugin_table_t* t, ss_plugin_table_entry_t* e, const ss_plugin_table_field_t* f, const ss_plugin_state_data* in);
+} ss_plugin_table_writer_vtable;
 
 // Vtable for controlling a state table for write operations.
 typedef struct
@@ -126,7 +181,8 @@ typedef struct
 	// with the given key. If another entry is already present with the same key,
 	// it gets replaced. After insertion, table will be come the owner of the
 	// entry's pointer. Returns an opaque pointer to the newly-added table's entry,
-	// or NULL in case of error.
+	// or NULL in case of error. Every non-NULL returned entry must be released
+	// by invoking release_table_entry() once it becomes no more used by the invoker.
 	ss_plugin_table_entry_t* (*add_table_entry)(ss_plugin_table_t* t, const ss_plugin_state_data* key, ss_plugin_table_entry_t* entry);
 	//
 	// Updates a table's entry by writing a value for one of its fields.
@@ -134,7 +190,7 @@ typedef struct
 	// The written value is read from the "in" parameter.
 	// Returns SS_PLUGIN_SUCCESS if successful, and SS_PLUGIN_FAILURE otherwise.
 	ss_plugin_rc (*write_entry_field)(ss_plugin_table_t* t, ss_plugin_table_entry_t* e, const ss_plugin_table_field_t* f, const ss_plugin_state_data* in);
-} ss_plugin_table_writer_vtable;
+} ss_plugin_table_writer_vtable_ext;
 
 // Plugin-provided input passed to the add_table() callback of
 // ss_plugin_init_tables_input, that can be used by the plugin to inform its
@@ -148,24 +204,39 @@ typedef struct
 	// The name of the state table.
 	const char* name;
 	//
-	// The type of the sta table's key.
+	// The type of the state table's key.
 	ss_plugin_state_type key_type;
 	//
 	// A non-NULL opaque pointer to the state table.
 	// This will be passed as parameters to all the callbacks defined below.
 	ss_plugin_table_t* table;
 	//
-	// Vtable for controlling read operations on the state table.
+	// Supported but deprecated. Use the extended version reader_ext.
+	// todo(jasondellaluce): when/if major changes to v4, remove this and
+	// give this name to the associated *_ext pointer.
 	ss_plugin_table_reader_vtable reader;
 	//
-	// Vtable for controlling write operations on the state table.
+	// Supported but deprecated. Use the extended version writer_ext.
+	// todo(jasondellaluce): when/if major changes to v4, remove this and
+	// give this name to the associated *_ext pointer.
 	ss_plugin_table_writer_vtable writer;
 	//
-	// Vtable for controlling operations related to fields on the state table.
+	// Supported but deprecated. Use the extended version fields_ext.
+	// todo(jasondellaluce): when/if major changes to v4, remove this and
+	// give this name to the associated *_ext pointer.
 	ss_plugin_table_fields_vtable fields;
+	//
+	// Vtable for controlling read operations on the state table.
+	ss_plugin_table_reader_vtable_ext* reader_ext;
+	//
+	// Vtable for controlling write operations on the state table.
+	ss_plugin_table_writer_vtable_ext* writer_ext;
+	//
+	// Vtable for controlling operations related to fields on the state table.
+	ss_plugin_table_fields_vtable_ext* fields_ext;
 } ss_plugin_table_input;
 
-// Initialization-time input related to the event parsing capability.
+// Initialization-time input related to the event parsing or field extraction capability.
 // This provides the plugin with callback functions implemented by its owner
 // that can be used to discover, access, and define state tables.
 typedef struct
@@ -186,10 +257,24 @@ typedef struct
 	// by other actors of the plugin's owner to interact with the state table.
 	ss_plugin_rc (*add_table)(ss_plugin_owner_t* o, const ss_plugin_table_input* in);
 	//
+	// Supported but deprecated. Use the extended version fields_ext.
+	// todo(jasondellaluce): when/if major changes to v4, remove this and
+	// give this name to the associated *_ext pointer.
+	ss_plugin_table_fields_vtable fields;
+	//
 	// Vtable for controlling operations related to fields on the state tables
 	// registeted in the plugin's owner.
-	ss_plugin_table_fields_vtable fields;
+	ss_plugin_table_fields_vtable_ext* fields_ext;
 } ss_plugin_init_tables_input;
+
+// Function used by plugin for sending messages to the framework-provided logger
+// Arguments:
+//  - component: name of the component that is logging
+//			(if set to NULL automatically falls back to the plugin name in the log)
+//  - msg: message to log 
+//			(it doesn't have to be '\n' terminated)
+//  - sev: message severity as defined in ss_plugin_log_severity
+typedef void (*ss_plugin_log_fn_t)(ss_plugin_owner_t* o, const char* component, const char* msg, ss_plugin_log_severity sev);
 
 // Input passed at the plugin through plugin_init(). This contain information
 // common to any plugin, and also information useful only in case the plugin
@@ -203,6 +288,7 @@ typedef struct ss_plugin_init_input
 	//
 	// The plugin's owner. Can be passed by the plugin to the callbacks available
 	// in this struct in order to invoke functions of its owner.
+	// It doesn't change during the whole plugin's lifecycle, it's safe to store it in the state
 	ss_plugin_owner_t* owner;
 	//
 	// Return a string with the error that was last generated by the plugin's
@@ -215,6 +301,10 @@ typedef struct ss_plugin_init_input
 	// capabilities. The callbacks available in this input take the plugin's owner
 	// as a parameter.
 	const ss_plugin_init_tables_input* tables;
+	//
+	// Log function passed to the plugin through the init input
+	// It doesn't change during the whole plugin's lifecycle, it's safe to store it in the state
+	ss_plugin_log_fn_t log_fn;
 } ss_plugin_init_input;
 
 // Input passed to the plugin when extracting a field from an event for
@@ -241,8 +331,13 @@ typedef struct ss_plugin_field_extract_input
 	// extract_fields() call.
 	ss_plugin_extract_field *fields;
 	//
-	// Vtable for controlling a state table for read operations.
+	// Supported but deprecated. Use the extended version table_reader_ext.
+	// todo(jasondellaluce): when/if major changes to v4, remove this and
+	// give this name to the associated *_ext pointer.
 	ss_plugin_table_reader_vtable table_reader;
+	//
+	// Vtable for controlling a state table for read operations.
+	ss_plugin_table_reader_vtable_ext* table_reader_ext;
 } ss_plugin_field_extract_input;
 
 // Input passed to the plugin when parsing an event for the event parsing
@@ -259,17 +354,37 @@ typedef struct ss_plugin_event_parse_input
 	// The string pointer is owned by the plugin's owenr.
 	const char *(*get_owner_last_error)(ss_plugin_owner_t *o);
 	//
-	// Vtable for controlling a state table for read operations.
+	// Supported but deprecated. Use the extended version table_reader_ext.
+	// todo(jasondellaluce): when/if major changes to v4, remove this and
+	// give this name to the associated *_ext pointer.
 	ss_plugin_table_reader_vtable table_reader;
 	//
-	// Vtable for controlling a state table for write operations.
+	// Supported but deprecated. Use the extended version table_writer_ext.
+	// todo(jasondellaluce): when/if major changes to v4, remove this and
+	// give this name to the associated *_ext pointer.
 	ss_plugin_table_writer_vtable table_writer;
+	//
+	// Vtable for controlling a state table for read operations.
+	ss_plugin_table_reader_vtable_ext* table_reader_ext;
+	//
+	// Vtable for controlling a state table for write operations.
+	ss_plugin_table_writer_vtable_ext* table_writer_ext;
 } ss_plugin_event_parse_input;
 
 //
 // Function handler used by plugin for sending asynchronous events to the
 // Falcosecurity libs during a live event capture. The asynchronous events
 // must be encoded as an async event type (code 402) as for the libscap specific.
+//
+// The plugin framework will automatically set the plugin ID of the produced
+// async event depending on the running event source in which the event will
+// be injected into. The event's thread ID can be set to control the system
+// thread associated, with value (uint64_t) -1) representing no thread
+// association. The event's timestamp can be set to forcefully specify
+// the timestamp of the phenomena that the event represents, and value
+// (uint64_t) -1) will cause the plugin framework to automatically assign
+// a timestamp as the time in which the event is received asynchronously.
+//
 // The function returns SS_PLUGIN_SUCCESS in case of success, or
 // SS_PLUGIN_FAILURE otherwise. If a non-NULL char pointer is passed for
 // the "err" argument, it will be filled with an error message string
@@ -579,8 +694,18 @@ typedef struct
 	struct
 	{
 		//
-		// Return the list of event types that this plugin can consume
+		// Return the list of event types that this plugin will receive
 		// for field extraction. The event types follow the libscap specific.
+		// This will be invoked only once by the framework after the plugin's
+		// initialization. Events that are not included in the returned list
+		// will not be received by the plugin.
+		// 
+		// This is a non-functional filter that should not influence the plugin's
+		// functional behavior. Instead, this is a performance optimization
+		// with the goal of avoiding unnecessary communication between the
+		// framework and the plugin for events that are known to be not used for
+		// field extraction. 
+		// 
 		// Required: no
 		//
 		// This function is optional--if NULL or an empty array, then:
@@ -588,7 +713,9 @@ typedef struct
 		//   get_extract_event_sources (either default or custom) is compatible
 		//   with the "syscall" event source, otherwise
 		// - the plugin will only receive events of plugin type (code 322).
-		uint16_t* (*get_extract_event_types)(uint32_t* numtypes);
+		// todo(jasondellaluce): when/if major changes to v4, reorder the arguments
+		// and put ss_plugin_t* as first
+		uint16_t* (*get_extract_event_types)(uint32_t* numtypes, ss_plugin_t* s);
 
 		//
 		// Return a string describing the event sources that this plugin
@@ -666,8 +793,17 @@ typedef struct
 	struct
 	{
 		//
-		// Return the list of event types that this plugin is capable of parsing.
-		// The event types follow the libscap specific.
+		// Return the list of event types that this plugin will receive
+		// for event parsing. The event types follow the libscap specific.
+		// This will be invoked only once by the framework after the plugin's
+		// initialization. Events that are not included in the returned list
+		// will not be received by the plugin.
+		// 
+		// This is a non-functional filter that should not influence the plugin's
+		// functional behavior. Instead, this is a performance optimization
+		// with the goal of avoiding unnecessary communication between the
+		// framework and the plugin for events that are known to be not used for
+		// event parsing. 
 		//
 		// Required: no
 		//
@@ -676,7 +812,9 @@ typedef struct
 		//   get_parse_event_sources (either default or custom) is compatible
 		//   with the "syscall" event source, otherwise
 		// - the plugin will only receive events of plugin type (code 322).
-		uint16_t* (*get_parse_event_types)(uint32_t* numtypes);
+		// todo(jasondellaluce): when/if major changes to v4, reorder the arguments
+		// and put ss_plugin_t* as first
+		uint16_t* (*get_parse_event_types)(uint32_t* numtypes, ss_plugin_t* s);
 		//
 		// Return a string describing the event sources that this plugin
 		// is capable of parsing.
