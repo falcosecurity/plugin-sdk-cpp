@@ -29,9 +29,11 @@ limitations under the License.
     static plugin_mixin<__t> s_plugin_extraction;                              \
                                                                                \
     FALCOSECURITY_EXPORT                                                       \
-    uint16_t* plugin_get_extract_event_types(uint32_t* numtypes)               \
+    uint16_t* plugin_get_extract_event_types(uint32_t* numtypes,               \
+                                             ss_plugin_t* s)                   \
     {                                                                          \
-        return s_plugin_extraction.get_extract_event_types(numtypes);          \
+        auto p = static_cast<plugin_mixin<__t>*>(s);                           \
+        return p->get_extract_event_types(numtypes);                           \
     }                                                                          \
                                                                                \
     FALCOSECURITY_EXPORT                                                       \
