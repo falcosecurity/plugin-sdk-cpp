@@ -69,7 +69,7 @@ class table_fields
 {
     public:
     FALCOSECURITY_INLINE
-    table_fields(const _internal::ss_plugin_table_fields_vtable* f,
+    table_fields(const _internal::ss_plugin_table_fields_vtable_ext* f,
                  _internal::ss_plugin_owner_t* o,
                  const char* (*glerr)(_internal::ss_plugin_owner_t* o)):
             m_fields(f),
@@ -86,7 +86,7 @@ class table_fields
     table_fields& operator=(const table_fields&) = default;
 
     private:
-    const _internal::ss_plugin_table_fields_vtable* m_fields;
+    const _internal::ss_plugin_table_fields_vtable_ext* m_fields;
     _internal::ss_plugin_owner_t* m_owner;
     const char* (*m_get_owner_last_error)(_internal::ss_plugin_owner_t* o);
 
@@ -98,7 +98,7 @@ class table_reader
 {
     public:
     FALCOSECURITY_INLINE
-    table_reader(const _internal::ss_plugin_table_reader_vtable* r,
+    table_reader(const _internal::ss_plugin_table_reader_vtable_ext* r,
                  _internal::ss_plugin_owner_t* o,
                  const char* (*glerr)(_internal::ss_plugin_owner_t* o)):
             m_reader(r),
@@ -115,7 +115,7 @@ class table_reader
     table_reader& operator=(const table_reader&) = default;
 
     private:
-    const _internal::ss_plugin_table_reader_vtable* m_reader;
+    const _internal::ss_plugin_table_reader_vtable_ext* m_reader;
     _internal::ss_plugin_owner_t* m_owner;
     const char* (*m_get_owner_last_error)(_internal::ss_plugin_owner_t* o);
 
@@ -127,7 +127,7 @@ class table_writer
 {
     public:
     FALCOSECURITY_INLINE
-    table_writer(const _internal::ss_plugin_table_writer_vtable* w,
+    table_writer(const _internal::ss_plugin_table_writer_vtable_ext* w,
                  _internal::ss_plugin_owner_t* o,
                  const char* (*glerr)(_internal::ss_plugin_owner_t* o)):
             m_writer(w),
@@ -144,7 +144,7 @@ class table_writer
     table_writer& operator=(const table_writer&) = default;
 
     private:
-    const _internal::ss_plugin_table_writer_vtable* m_writer;
+    const _internal::ss_plugin_table_writer_vtable_ext* m_writer;
     _internal::ss_plugin_owner_t* m_owner;
     const char* (*m_get_owner_last_error)(_internal::ss_plugin_owner_t* o);
 
@@ -153,7 +153,7 @@ class table_writer
     friend class table_field;
 };
 
-using table_entry = _internal::ss_plugin_table_field_t*;
+using table_entry = _internal::ss_plugin_table_entry_t*;
 
 class table_stale_entry
 {
@@ -525,6 +525,33 @@ class table
         return res;
     }
 
+    FALCOSECURITY_INLINE void release_entry(const table_reader& r, table_entry e)
+    {
+        r.m_reader->release_table_entry(m_table, e);
+    }
+
+    using table_iterator_func_t = std::function<bool(table_entry)>;
+
+    FALCOSECURITY_INLINE bool iterate_entries(const table_reader& r, table_iterator_func_t f)
+    {
+        table_iterator_state_t s;
+        s.func = f;
+
+        auto res = r.m_reader->iterate_entries(m_table, iterate_entries_internal, &s);
+        if(!res)
+        {
+            std::string msg = "can't iterate entries";
+            auto err = r.m_get_owner_last_error(r.m_owner);
+            if(err)
+            {
+                msg += ": ";
+                msg += err;
+            }
+            throw plugin_exception(msg);
+        }
+        return res;
+    }
+
     private:
     template<typename T> FALCOSECURITY_INLINE void check_type(const T& v) const
     {
@@ -535,6 +562,20 @@ class table
                         falcosecurity::to_string(
                                 (falcosecurity::state_value_type)m_key_type));
     }
+
+    struct table_iterator_state_t 
+    {
+        table_iterator_func_t func;
+    };
+
+    FALCOSECURITY_INLINE static _internal::ss_plugin_bool iterate_entries_internal(
+                                                            _internal::ss_plugin_table_iterator_state_t* s, 
+                                                            _internal::ss_plugin_table_entry_t* e)
+    {
+        table_iterator_state_t* state = static_cast<table_iterator_state_t*>(s);
+        return state->func(static_cast<table_entry>(e)) ? 1 : 0;
+    }
+
     std::string m_name;
     _internal::ss_plugin_state_type m_key_type;
     _internal::ss_plugin_table_t* m_table;

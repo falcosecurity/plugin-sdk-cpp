@@ -94,6 +94,12 @@ class my_plugin
             uint64_t count = 0;
             m_threads_field_opencount.read_value(tr, tinfo, count);
             req.set_value(count);
+
+            m_threads_table.iterate_entries(tr, [](falcosecurity::table_entry e){
+                std::printf("entry");
+                return true;
+            });
+
             return true;
         }
         default:

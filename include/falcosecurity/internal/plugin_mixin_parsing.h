@@ -84,9 +84,9 @@ template<class Plugin, class Base> class plugin_mixin_parsing : public Base
         FALCOSECURITY_CATCH_ALL(Base::m_last_err_storage, {
             const auto ev = falcosecurity::event_reader(evt);
             const auto tr = falcosecurity::table_reader(
-                    &in->table_reader, in->owner, in->get_owner_last_error);
+                    in->table_reader_ext, in->owner, in->get_owner_last_error);
             const auto tw = falcosecurity::table_writer(
-                    &in->table_writer, in->owner, in->get_owner_last_error);
+                    in->table_writer_ext, in->owner, in->get_owner_last_error);
             parse_event_input in(ev, tr, tw);
             if(!Plugin::parse_event(in))
             {
