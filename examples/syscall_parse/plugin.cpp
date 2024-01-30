@@ -65,10 +65,16 @@ class my_plugin
     std::vector<std::string> get_parse_event_sources() { return {"syscall"}; }
 
     // (optional)
-    void destroy() {}
+    void destroy() 
+    {
+        logger.log("plugin destroyed");
+    }
 
     bool init(falcosecurity::init_input& i)
     {
+        logger = i.get_logger();
+        logger.log("plugin initialized");
+
         using st = falcosecurity::state_value_type;
         auto& t = i.tables();
         m_threads_table = t.get_table("threads", st::SS_PLUGIN_ST_INT64);
@@ -109,6 +115,7 @@ class my_plugin
 
     falcosecurity::table m_threads_table;
     falcosecurity::table_field m_threads_field_opencount;
+    falcosecurity::logger logger;
 };
 
 FALCOSECURITY_PLUGIN(my_plugin);

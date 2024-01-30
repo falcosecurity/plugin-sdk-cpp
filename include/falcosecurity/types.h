@@ -37,6 +37,44 @@ using field_value_type = _internal::ss_plugin_field_type;
 
 using state_value_type = _internal::ss_plugin_state_type;
 
+using log_severity = _internal::ss_plugin_log_severity;
+
+using owner_type = _internal::ss_plugin_owner_t*;
+
+using log_fn_type = _internal::ss_plugin_log_fn_t;
+
+struct logger
+{
+    FALCOSECURITY_INLINE
+    logger(owner_type o, log_fn_type f):
+            owner(o), log_fn(f)
+    {
+    }
+    FALCOSECURITY_INLINE
+    logger() = default;
+    FALCOSECURITY_INLINE
+    logger(logger&&) = default;
+    FALCOSECURITY_INLINE
+    logger& operator=(logger&&) = default;
+    FALCOSECURITY_INLINE
+    logger(const logger&) = default;
+    FALCOSECURITY_INLINE
+    logger& operator=(const logger&) = default;
+
+    void log(const std::string& component, const std::string& msg, log_severity sev=log_severity::SS_PLUGIN_LOG_SEV_INFO) 
+    {
+        log_fn(owner, component.c_str(), msg.c_str(), sev);
+    }
+
+    void log(const std::string& msg, log_severity sev=log_severity::SS_PLUGIN_LOG_SEV_INFO) 
+    {
+        log_fn(owner, NULL, msg.c_str(), sev);
+    }
+
+    owner_type owner;
+    log_fn_type log_fn;
+};
+
 struct init_schema
 {
     FALCOSECURITY_INLINE
