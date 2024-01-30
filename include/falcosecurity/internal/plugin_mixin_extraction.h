@@ -122,7 +122,7 @@ template<class Plugin, class Base> class plugin_mixin_extraction : public Base
         FALCOSECURITY_CATCH_ALL(Base::m_last_err_storage, {
             const auto ev = falcosecurity::event_reader(evt);
             const auto tr = falcosecurity::table_reader(
-                    &in->table_reader, in->owner, in->get_owner_last_error);
+                    in->table_reader_ext, in->owner, in->get_owner_last_error);
             extract_fields_input input(ev, tr);
             if(m_extract_requests.size() < in->num_fields)
             {

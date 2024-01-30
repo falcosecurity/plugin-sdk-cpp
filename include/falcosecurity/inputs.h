@@ -37,7 +37,7 @@ class table_init_input
                      const _internal::ss_plugin_init_input* i):
             m_owner(o),
             m_input(i),
-            m_fielder(&i->tables->fields, i->owner, i->get_owner_last_error)
+            m_fielder(i->tables->fields_ext, i->owner, i->get_owner_last_error)
     {
     }
     FALCOSECURITY_INLINE
