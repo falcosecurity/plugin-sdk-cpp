@@ -84,9 +84,18 @@ class my_plugin
     }
 
     // (optional)
-    void destroy() {}
+    void destroy() 
+    {
+        logger.log("plugin destroyed");
+    }
 
-    bool init(falcosecurity::init_input& i) { return true; }
+    bool init(falcosecurity::init_input& i) 
+    {
+        logger = i.get_logger();
+        logger.log("plugin initialized");
+
+        return true; 
+    }
 
     std::unique_ptr<my_event_source> open(const std::string& params)
     {
@@ -105,6 +114,9 @@ class my_plugin
         }
         return std::unique_ptr<my_event_source>(new my_event_source(max_evts));
     }
+
+    private:
+    falcosecurity::logger logger;
 };
 
 FALCOSECURITY_PLUGIN(my_plugin);
