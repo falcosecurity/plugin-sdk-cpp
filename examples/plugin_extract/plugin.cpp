@@ -46,17 +46,14 @@ class my_plugin
     }
 
     // (optional)
-    void destroy() 
-    {
-        logger.log("plugin destroyed");
-    }
+    void destroy() { logger.log("plugin destroyed"); }
 
-    bool init(falcosecurity::init_input& i) 
+    bool init(falcosecurity::init_input& i)
     {
         logger = i.get_logger();
         logger.log("plugin initialized");
 
-        return true; 
+        return true;
     }
 
     bool extract(const falcosecurity::extract_fields_input& in)

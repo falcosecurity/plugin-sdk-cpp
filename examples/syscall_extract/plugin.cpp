@@ -66,10 +66,7 @@ class my_plugin
     }
 
     // (optional)
-    void destroy() 
-    {
-        logger.log("plugin destroyed");
-    }
+    void destroy() { logger.log("plugin destroyed"); }
 
     bool init(falcosecurity::init_input& i)
     {
@@ -101,10 +98,12 @@ class my_plugin
             m_threads_field_opencount.read_value(tr, tinfo, count);
             req.set_value(count);
 
-            m_threads_table.iterate_entries(tr, [](falcosecurity::table_entry e){
-                std::printf("entry");
-                return true;
-            });
+            m_threads_table.iterate_entries(tr,
+                                            [](falcosecurity::table_entry e)
+                                            {
+                                                std::printf("entry");
+                                                return true;
+                                            });
 
             return true;
         }
