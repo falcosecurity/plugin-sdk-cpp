@@ -147,7 +147,10 @@ class init_input
     table_init_input& tables() { return m_table_input; }
 
     FALCOSECURITY_INLINE
-    logger get_logger() const { return logger(m_input->owner, m_input->log_fn); }
+    logger get_logger() const
+    {
+        return logger(m_input->owner, m_input->log_fn);
+    }
 
     private:
     const _internal::ss_plugin_init_input* m_input;

@@ -525,19 +525,22 @@ class table
         return res;
     }
 
-    FALCOSECURITY_INLINE void release_entry(const table_reader& r, table_entry e)
+    FALCOSECURITY_INLINE void release_entry(const table_reader& r,
+                                            table_entry e)
     {
         r.m_reader->release_table_entry(m_table, e);
     }
 
     using table_iterator_func_t = std::function<bool(table_entry)>;
 
-    FALCOSECURITY_INLINE bool iterate_entries(const table_reader& r, table_iterator_func_t f)
+    FALCOSECURITY_INLINE bool iterate_entries(const table_reader& r,
+                                              table_iterator_func_t f)
     {
         table_iterator_state_t s;
         s.func = f;
 
-        auto res = r.m_reader->iterate_entries(m_table, iterate_entries_internal, &s);
+        auto res = r.m_reader->iterate_entries(m_table,
+                                               iterate_entries_internal, &s);
         if(!res)
         {
             std::string msg = "can't iterate entries";
@@ -563,14 +566,14 @@ class table
                                 (falcosecurity::state_value_type)m_key_type));
     }
 
-    struct table_iterator_state_t 
+    struct table_iterator_state_t
     {
         table_iterator_func_t func;
     };
 
-    FALCOSECURITY_INLINE static _internal::ss_plugin_bool iterate_entries_internal(
-                                                            _internal::ss_plugin_table_iterator_state_t* s, 
-                                                            _internal::ss_plugin_table_entry_t* e)
+    FALCOSECURITY_INLINE static _internal::ss_plugin_bool
+    iterate_entries_internal(_internal::ss_plugin_table_iterator_state_t* s,
+                             _internal::ss_plugin_table_entry_t* e)
     {
         table_iterator_state_t* state = static_cast<table_iterator_state_t*>(s);
         return state->func(static_cast<table_entry>(e)) ? 1 : 0;
