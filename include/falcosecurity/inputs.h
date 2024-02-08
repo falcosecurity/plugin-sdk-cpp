@@ -250,4 +250,27 @@ class extract_fields_input
     falcosecurity::extract_request* m_extract_request;
 };
 
+class set_config_input
+{
+    public:
+    FALCOSECURITY_INLINE
+    set_config_input(const _internal::ss_plugin_set_config_input* i): m_input(i)
+    {
+    }
+    FALCOSECURITY_INLINE
+    set_config_input(set_config_input&&) = default;
+    FALCOSECURITY_INLINE
+    set_config_input& operator=(set_config_input&&) = default;
+    FALCOSECURITY_INLINE
+    set_config_input(const set_config_input&) = default;
+    FALCOSECURITY_INLINE
+    set_config_input& operator=(const set_config_input&) = default;
+
+    FALCOSECURITY_INLINE
+    std::string get_config() { return std::string(m_input->config); }
+
+    private:
+    const _internal::ss_plugin_set_config_input* m_input;
+};
+
 }; // namespace falcosecurity

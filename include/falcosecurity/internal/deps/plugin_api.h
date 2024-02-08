@@ -30,7 +30,7 @@ extern "C" {
 //
 // todo(jasondellaluce): when/if major changes to v4, check and solve all todos
 #define PLUGIN_API_VERSION_MAJOR 3
-#define PLUGIN_API_VERSION_MINOR 3
+#define PLUGIN_API_VERSION_MINOR 4
 #define PLUGIN_API_VERSION_PATCH 0
 
 //
@@ -370,6 +370,14 @@ typedef struct ss_plugin_event_parse_input
 	// Vtable for controlling a state table for write operations.
 	ss_plugin_table_writer_vtable_ext* table_writer_ext;
 } ss_plugin_event_parse_input;
+
+// Input passed to the plugin when setting a new configuration
+typedef struct ss_plugin_set_config_input
+{
+	//
+	// An opaque string representing the new configuration provided by the framework
+	const char* config;
+} ss_plugin_set_config_input;
 
 //
 // Function handler used by plugin for sending asynchronous events to the
@@ -939,6 +947,17 @@ typedef struct
 		//
 		ss_plugin_rc (*set_async_event_handler)(ss_plugin_t* s, ss_plugin_owner_t* owner, const ss_plugin_async_event_handler_t handler);
 	};
+
+	// Sets a new plugin configuration when provided by the framework.
+	// Required: no
+	// Arguments:
+	// - s: the plugin state, returned by init(). Can be NULL.
+	// - i: configuration input provided by the framework.
+	//
+	// Return value: A ss_plugin_rc with value SS_PLUGIN_SUCCESS if the config is accepted
+	// or SS_PLUGIN_FAILURE if the config is rejected.
+	// If rejected the plugin should provide context in the string returned by get_last_error().
+	ss_plugin_rc (*set_config)(ss_plugin_t* s, const ss_plugin_set_config_input* i);
 } plugin_api;
 
 #ifdef __cplusplus

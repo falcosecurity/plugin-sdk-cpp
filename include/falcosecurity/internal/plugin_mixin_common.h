@@ -137,6 +137,17 @@ template<class Plugin> class plugin_mixin_common : public Plugin
     FALCOSECURITY_INLINE
     void destroy() noexcept { _destroy(static_cast<Plugin*>(this)); }
 
+    FALCOSECURITY_INLINE
+    ss_plugin_rc set_config(const ss_plugin_set_config_input* input) noexcept
+    {
+        falcosecurity::set_config_input in(input);
+        if(_set_config(in, static_cast<Plugin*>(this)))
+        {
+            return ss_plugin_rc::SS_PLUGIN_SUCCESS;
+        }
+        return ss_plugin_rc::SS_PLUGIN_FAILURE;
+    }
+
     private:
     template<typename T>
     FALCOSECURITY_INLINE auto _destroy(T* o) -> decltype(o->destroy())
@@ -200,6 +211,22 @@ template<class Plugin> class plugin_mixin_common : public Plugin
         static std::string v = "";
         return v;
     }
+
+    template<typename T>
+    FALCOSECURITY_INLINE auto
+    _set_config(falcosecurity::set_config_input& in, T* o)
+            -> decltype(o->set_config(in))
+    {
+        static_assert(
+                std::is_same<bool (T::*)(falcosecurity::set_config_input&),
+                             decltype(&T::set_config)>::value,
+                "expected signature: bool set_config(const "
+                "falcosecurity::set_config_input) ");
+        return o->set_config(in);
+    }
+
+    FALCOSECURITY_INLINE
+    auto _set_config(falcosecurity::set_config_input& in, ...) -> bool { return false; }
 };
 
 }; // namespace _internal

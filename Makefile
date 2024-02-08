@@ -18,7 +18,7 @@
 
 CURL ?= curl
 
-FALCOSECURITY_LIBS_REVISION ?= 3d757a2ef3ff270dbb22605bd9eb24465a110dee
+FALCOSECURITY_LIBS_REVISION ?= 3f44a0741707d3b0e5cd83896d765ea18256dbb3
 FALCOSECURITY_LIBS_REPO     ?= falcosecurity/libs
 DEPS_INCLUDEDIR             := include/falcosecurity/internal/deps
 DEPS_PLUGIN_LIB_URL         := https://raw.githubusercontent.com/${FALCOSECURITY_LIBS_REPO}/${FALCOSECURITY_LIBS_REVISION}/userspace/plugin
