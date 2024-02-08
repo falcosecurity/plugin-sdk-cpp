@@ -87,5 +87,13 @@ limitations under the License.
         p->destroy();                                                          \
         delete p;                                                              \
     }                                                                          \
+                                                                               \
+    FALCOSECURITY_EXPORT                                                       \
+    ss_plugin_rc plugin_set_config(ss_plugin_t* s,                             \
+                                   const ss_plugin_set_config_input* input)    \
+    {                                                                          \
+        auto p = static_cast<plugin_mixin<__t>*>(s);                           \
+        return p->set_config(input);                                           \
+    }                                                                          \
     }; /* _internal */                                                         \
     }; /* falcosecurity */

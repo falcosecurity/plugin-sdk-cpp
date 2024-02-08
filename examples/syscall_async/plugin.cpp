@@ -34,6 +34,9 @@ class my_plugin
     std::string get_contact() { return "some contact"; }
 
     // (optional)
+    bool set_config(falcosecurity::set_config_input& i) { return false; }
+
+    // (optional)
     void destroy() {}
 
     bool init(falcosecurity::init_input& i)
