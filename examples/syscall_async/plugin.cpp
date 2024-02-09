@@ -34,13 +34,20 @@ class my_plugin
     std::string get_contact() { return "some contact"; }
 
     // (optional)
-    bool set_config(falcosecurity::set_config_input& i) { return false; }
+    bool set_config(falcosecurity::set_config_input& i)
+    {
+        logger.log("new config!");
+        return true;
+    }
 
     // (optional)
     void destroy() {}
 
     bool init(falcosecurity::init_input& i)
     {
+        logger = i.get_logger();
+        logger.log("plugin initialized");
+
         m_async_sleep_ms = 1000;
         if(!i.get_config().empty())
         {
@@ -109,6 +116,7 @@ class my_plugin
     int m_async_sleep_ms;
     std::thread m_async_thread;
     std::atomic<bool> m_async_thread_quit;
+    falcosecurity::logger logger;
 };
 
 FALCOSECURITY_PLUGIN(my_plugin);
