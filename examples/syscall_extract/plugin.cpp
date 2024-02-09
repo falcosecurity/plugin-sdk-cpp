@@ -66,7 +66,11 @@ class my_plugin
     }
 
     // (optional)
-    bool set_config(falcosecurity::set_config_input& i) { return false; }
+    bool set_config(falcosecurity::set_config_input& i)
+    {
+        logger.log("new config!");
+        return true;
+    }
 
     // (optional)
     void destroy() { logger.log("plugin destroyed"); }
