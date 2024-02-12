@@ -213,9 +213,8 @@ template<class Plugin> class plugin_mixin_common : public Plugin
     }
 
     template<typename T>
-    FALCOSECURITY_INLINE auto
-    _set_config(falcosecurity::set_config_input& in, T* o)
-            -> decltype(o->set_config(in))
+    FALCOSECURITY_INLINE auto _set_config(falcosecurity::set_config_input& in,
+                                          T* o) -> decltype(o->set_config(in))
     {
         static_assert(
                 std::is_same<bool (T::*)(falcosecurity::set_config_input&),
@@ -226,7 +225,10 @@ template<class Plugin> class plugin_mixin_common : public Plugin
     }
 
     FALCOSECURITY_INLINE
-    auto _set_config(falcosecurity::set_config_input& in, ...) -> bool { return false; }
+    auto _set_config(falcosecurity::set_config_input& in, ...) -> bool
+    {
+        return false;
+    }
 };
 
 }; // namespace _internal
