@@ -17,6 +17,7 @@
 #
 
 CURL ?= curl
+PATCH ?= patch
 
 FALCOSECURITY_LIBS_REVISION ?= 3f44a0741707d3b0e5cd83896d765ea18256dbb3
 FALCOSECURITY_LIBS_REPO     ?= falcosecurity/libs
@@ -34,7 +35,8 @@ all: examples
 
 .PHONY: clean
 clean: $(examples_clean)
-	+rm -fr $(DEPS_INCLUDEDIR) $(LIBDIR) $(OBJFILES)
+	+rm -fr $(DEPS_INCLUDEDIR)/plugin_api.h $(DEPS_INCLUDEDIR)/plugin_types.h $(DEPS_INCLUDEDIR)/nlohmann/json.hpp
+	+rm -fr $(LIBDIR) $(OBJFILES)
 
 .PHONY: format
 format:
@@ -62,6 +64,7 @@ $(DEPS_INCLUDEDIR)/plugin_types.h: $(DEPS_INCLUDEDIR)
 
 $(DEPS_INCLUDEDIR)/plugin_api.h: $(DEPS_INCLUDEDIR)
 	+$(CURL) -Lso $(DEPS_INCLUDEDIR)/plugin_api.h $(DEPS_PLUGIN_LIB_URL)/plugin_api.h
+	+$(PATCH) -p1 < $(DEPS_INCLUDEDIR)/plugin_api.patch
 
 $(DEPS_INCLUDEDIR)/nlohmann/json.hpp: $(DEPS_INCLUDEDIR)
 	+$(CURL) -sLo $(DEPS_INCLUDEDIR)/nlohmann/json.hpp https://github.com/nlohmann/json/releases/download/v3.10.2/json.hpp
