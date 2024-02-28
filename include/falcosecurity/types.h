@@ -46,7 +46,10 @@ using log_fn_type = _internal::ss_plugin_log_fn_t;
 struct logger
 {
     FALCOSECURITY_INLINE
-    logger(owner_type o, log_fn_type f): owner(o), log_fn(f) {}
+    logger(owner_type o, log_fn_type f):
+            owner(o), log_fn(f != nullptr ? f : (log_fn_type)log_discard)
+    {
+    }
     FALCOSECURITY_INLINE
     logger() = default;
     FALCOSECURITY_INLINE
@@ -58,20 +61,44 @@ struct logger
     FALCOSECURITY_INLINE
     logger& operator=(const logger&) = default;
 
+    FALCOSECURITY_INLINE
     void log(const std::string& component, const std::string& msg,
-             log_severity sev = log_severity::SS_PLUGIN_LOG_SEV_INFO)
+             log_severity sev = log_severity::SS_PLUGIN_LOG_SEV_INFO) noexcept
     {
         log_fn(owner, component.c_str(), msg.c_str(), sev);
     }
 
+    FALCOSECURITY_INLINE
     void log(const std::string& msg,
-             log_severity sev = log_severity::SS_PLUGIN_LOG_SEV_INFO)
+             log_severity sev = log_severity::SS_PLUGIN_LOG_SEV_INFO) noexcept
     {
         log_fn(owner, NULL, msg.c_str(), sev);
     }
 
+    FALCOSECURITY_INLINE
+    void log(const char* component, const char* msg,
+             log_severity sev = log_severity::SS_PLUGIN_LOG_SEV_INFO) noexcept
+    {
+        log_fn(owner, component, msg, sev);
+    }
+
+    FALCOSECURITY_INLINE
+    void log(const char* msg,
+             log_severity sev = log_severity::SS_PLUGIN_LOG_SEV_INFO) noexcept
+    {
+        log_fn(owner, NULL, msg, sev);
+    }
+
+    private:
+    FALCOSECURITY_INLINE
+    static void log_discard(owner_type* o, const char* c, const char* m,
+                            log_severity s)
+    {
+        // do nothing
+    }
+
     owner_type owner;
-    log_fn_type log_fn;
+    log_fn_type log_fn = (log_fn_type)log_discard;
 };
 
 struct init_schema
