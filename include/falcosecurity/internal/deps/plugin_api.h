@@ -30,7 +30,7 @@ extern "C" {
 //
 // todo(jasondellaluce): when/if major changes to v4, check and solve all todos
 #define PLUGIN_API_VERSION_MAJOR 3
-#define PLUGIN_API_VERSION_MINOR 4
+#define PLUGIN_API_VERSION_MINOR 6
 #define PLUGIN_API_VERSION_PATCH 0
 
 //
@@ -51,7 +51,7 @@ extern "C" {
 // give this name to the associated *_ext struct.
 typedef struct
 {
-	ss_plugin_table_fieldinfo* (*list_table_fields)(ss_plugin_table_t* t, uint32_t* nfields);
+	const ss_plugin_table_fieldinfo* (*list_table_fields)(ss_plugin_table_t* t, uint32_t* nfields);
 	ss_plugin_table_field_t* (*get_table_field)(ss_plugin_table_t* t, const char* name, ss_plugin_state_type data_type);
 	ss_plugin_table_field_t* (*add_table_field)(ss_plugin_table_t* t, const char* name, ss_plugin_state_type data_type);
 } ss_plugin_table_fields_vtable;
@@ -66,7 +66,7 @@ typedef struct
 	// available in the entries of the table. nfields will be filled with the number
 	// of elements of the returned array. The array's memory is owned by the
 	// tables's owner. Returns NULL in case of error.
-	ss_plugin_table_fieldinfo* (*list_table_fields)(ss_plugin_table_t* t, uint32_t* nfields);
+	const ss_plugin_table_fieldinfo* (*list_table_fields)(ss_plugin_table_t* t, uint32_t* nfields);
 	//
 	// Returns an opaque pointer representing an accessor to a data field
 	// present in all entries of the table, given its name and type.
@@ -263,8 +263,16 @@ typedef struct
 	ss_plugin_table_fields_vtable fields;
 	//
 	// Vtable for controlling operations related to fields on the state tables
-	// registeted in the plugin's owner.
+	// registered in the plugin's owner.
 	ss_plugin_table_fields_vtable_ext* fields_ext;
+	//
+	// Vtable for controlling read operations on the state tables registered
+	// in the plugin's owner.
+	ss_plugin_table_reader_vtable_ext* reader_ext;
+	//
+	// Vtable for controlling write operations on the state tables registered
+	// in the plugin's owner.
+	ss_plugin_table_writer_vtable_ext* writer_ext;
 } ss_plugin_init_tables_input;
 
 // Function used by plugin for sending messages to the framework-provided logger
@@ -958,6 +966,17 @@ typedef struct
 	// or SS_PLUGIN_FAILURE if the config is rejected.
 	// If rejected the plugin should provide context in the string returned by get_last_error().
 	ss_plugin_rc (*set_config)(ss_plugin_t* s, const ss_plugin_set_config_input* i);
+
+	//
+	// Return an updated set of metrics provided by this plugin.
+	// Required: no
+	// - s: the plugin state, returned by init(). Can be NULL.
+	// - num_metrics: lenght of the returned metrics array.
+	//
+	// Return value: Pointer to the first element of the metrics array.
+	// 'num_metrics' must be set to the lenght of the array before returning
+	// and it can be set to 0 if no metrics are provided.
+	ss_plugin_metric* (*get_metrics)(ss_plugin_t* s, uint32_t* num_metrics);
 } plugin_api;
 
 #ifdef __cplusplus
