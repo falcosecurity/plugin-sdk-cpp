@@ -43,6 +43,12 @@ using owner_type = _internal::ss_plugin_owner_t*;
 
 using log_fn_type = _internal::ss_plugin_log_fn_t;
 
+using metric_type = _internal::ss_plugin_metric_type;
+
+using metric_value_type = _internal::ss_plugin_metric_value_type;
+
+using metric_value = _internal::ss_plugin_metric_value;
+
 struct logger
 {
     FALCOSECURITY_INLINE
@@ -195,6 +201,77 @@ struct open_param
     std::string value;
     std::string description;
     std::string separator;
+};
+
+struct metric
+{
+    FALCOSECURITY_INLINE
+    metric() = default;
+    FALCOSECURITY_INLINE
+    metric(const std::string& n,
+           const metric_type t = metric_type::SS_PLUGIN_METRIC_TYPE_MONOTONIC,
+           const metric_value v = metric_value(),
+           const metric_value_type vt =
+                   metric_value_type::SS_PLUGIN_METRIC_VALUE_TYPE_U64):
+            name(n),
+            type(t), value(v), value_type(vt)
+    {
+    }
+    FALCOSECURITY_INLINE
+    metric(metric&&) = default;
+    FALCOSECURITY_INLINE
+    metric& operator=(metric&&) = default;
+    FALCOSECURITY_INLINE
+    metric(const metric&) = default;
+    FALCOSECURITY_INLINE
+    metric& operator=(const metric&) = default;
+
+    FALCOSECURITY_INLINE
+    void set_value(uint32_t v) noexcept
+    {
+        value.u32 = v;
+        value_type = metric_value_type::SS_PLUGIN_METRIC_VALUE_TYPE_U32;
+    }
+
+    FALCOSECURITY_INLINE
+    void set_value(int32_t v) noexcept
+    {
+        value.s32 = v;
+        value_type = metric_value_type::SS_PLUGIN_METRIC_VALUE_TYPE_S32;
+    }
+
+    FALCOSECURITY_INLINE
+    void set_value(uint64_t v) noexcept
+    {
+        value.u64 = v;
+        value_type = metric_value_type::SS_PLUGIN_METRIC_VALUE_TYPE_U64;
+    }
+
+    FALCOSECURITY_INLINE
+    void set_value(int64_t v) noexcept
+    {
+        value.s64 = v;
+        value_type = metric_value_type::SS_PLUGIN_METRIC_VALUE_TYPE_S64;
+    }
+
+    FALCOSECURITY_INLINE
+    void set_value(double v) noexcept
+    {
+        value.d = v;
+        value_type = metric_value_type::SS_PLUGIN_METRIC_VALUE_TYPE_D;
+    }
+
+    FALCOSECURITY_INLINE
+    void set_value(float v) noexcept
+    {
+        value.f = v;
+        value_type = metric_value_type::SS_PLUGIN_METRIC_VALUE_TYPE_F;
+    }
+
+    std::string name;
+    metric_type type;
+    metric_value value;
+    metric_value_type value_type;
 };
 
 static inline std::string to_string(result_code t)

@@ -95,5 +95,13 @@ limitations under the License.
         auto p = static_cast<plugin_mixin<__t>*>(s);                           \
         return p->set_config(input);                                           \
     }                                                                          \
+                                                                               \
+    FALCOSECURITY_EXPORT                                                       \
+    ss_plugin_metric* plugin_get_metrics(ss_plugin_t* s,                       \
+                                         uint32_t* num_metrics)                \
+    {                                                                          \
+        auto p = static_cast<plugin_mixin<__t>*>(s);                           \
+        return p->get_metrics(num_metrics);                                    \
+    }                                                                          \
     }; /* _internal */                                                         \
     }; /* falcosecurity */

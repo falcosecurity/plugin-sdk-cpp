@@ -72,6 +72,12 @@ class my_plugin
     }
 
     // (optional)
+    const std::vector<falcosecurity::metric>& get_metrics()
+    {
+        return m_metrics;
+    }
+
+    // (optional)
     void destroy() { logger.log("plugin destroyed"); }
 
     bool init(falcosecurity::init_input& i)
@@ -84,6 +90,16 @@ class my_plugin
         m_threads_table = t.get_table("threads", st::SS_PLUGIN_ST_INT64);
         m_threads_field_opencount = m_threads_table.add_field(
                 t.fields(), "open_evt_count", st::SS_PLUGIN_ST_UINT64);
+
+        falcosecurity::metric m("dummy_metric",
+                                falcosecurity::metric_type::
+                                        SS_PLUGIN_METRIC_TYPE_NON_MONOTONIC);
+        m.set_value(-123.001);
+        m_metrics.push_back(m);
+
+        falcosecurity::metric ec("evt_count");
+        m_metrics.push_back(ec);
+
         return true;
     }
 
@@ -102,6 +118,9 @@ class my_plugin
             m_threads_field_opencount.read_value(tr, tinfo, count);
             count++;
             m_threads_field_opencount.write_value(tw, tinfo, count);
+
+            // update 'evt_count' metric
+            m_metrics.at(1).set_value(count);
         }
         return true;
     }
@@ -120,6 +139,7 @@ class my_plugin
     falcosecurity::table m_threads_table;
     falcosecurity::table_field m_threads_field_opencount;
     falcosecurity::logger logger;
+    std::vector<falcosecurity::metric> m_metrics;
 };
 
 FALCOSECURITY_PLUGIN(my_plugin);
