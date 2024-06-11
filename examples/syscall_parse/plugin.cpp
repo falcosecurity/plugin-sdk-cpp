@@ -91,6 +91,15 @@ class my_plugin
         m_threads_field_opencount = m_threads_table.add_field(
                 t.fields(), "open_evt_count", st::SS_PLUGIN_ST_UINT64);
 
+        // get the subtable field accessor
+        m_threads_field_file_descriptor = m_threads_table.get_field(
+                t.fields(), "file_descriptors", st::SS_PLUGIN_ST_TABLE);
+
+        // add a new custom field to the subtable
+        m_file_descriptor_field_custom = t.add_subtable_field(
+                m_threads_table, m_threads_field_file_descriptor, "custom",
+                st::SS_PLUGIN_ST_STRING);
+
         falcosecurity::metric m("dummy_metric",
                                 falcosecurity::metric_type::
                                         SS_PLUGIN_METRIC_TYPE_NON_MONOTONIC);
@@ -119,6 +128,28 @@ class my_plugin
             count++;
             m_threads_field_opencount.write_value(tw, tinfo, count);
 
+            using st = falcosecurity::state_value_type;
+
+            // get the subtable using the access obtained during the init, in
+            // this case the fd table of the event tid
+            auto fd_table = m_threads_table.get_subtable(
+                    tr, m_threads_field_file_descriptor, tinfo,
+                    st::SS_PLUGIN_ST_INT64);
+
+            // iterate all the entries in the subtable
+            fd_table.iterate_entries(
+                    tr,
+                    [this, tw](const falcosecurity::table_entry& e)
+                    {
+                        // writes a dummy value in the custom field of each
+                        // entry in the subtable
+                        std::string hello = "hello world";
+                        m_file_descriptor_field_custom.write_value(tw, e,
+                                                                   hello);
+
+                        return true;
+                    });
+
             // update 'evt_count' metric
             m_metrics.at(1).set_value(count);
         }
@@ -138,6 +169,10 @@ class my_plugin
 
     falcosecurity::table m_threads_table;
     falcosecurity::table_field m_threads_field_opencount;
+    falcosecurity::table_field m_threads_field_file_descriptor;
+
+    falcosecurity::table_field m_file_descriptor_field_custom;
+
     falcosecurity::logger logger;
     std::vector<falcosecurity::metric> m_metrics;
 };
