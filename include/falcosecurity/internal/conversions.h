@@ -117,6 +117,14 @@ FALCOSECURITY_INLINE void falcosecurity::_internal::read_state_data(
 }
 
 template<>
+FALCOSECURITY_INLINE void falcosecurity::_internal::read_state_data(
+        const falcosecurity::_internal::ss_plugin_state_data& v,
+        ss_plugin_table_t*& o)
+{
+    o = v.table;
+}
+
+template<>
 FALCOSECURITY_INLINE void falcosecurity::_internal::write_state_data(
         falcosecurity::_internal::ss_plugin_state_data& v, const int8_t& o)
 {

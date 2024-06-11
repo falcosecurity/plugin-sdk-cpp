@@ -37,7 +37,9 @@ class table_init_input
                      const _internal::ss_plugin_init_input* i):
             m_owner(o),
             m_input(i),
-            m_fielder(i->tables->fields_ext, i->owner, i->get_owner_last_error)
+            m_fielder(i->tables->fields_ext, i->owner, i->get_owner_last_error),
+            m_reader(i->tables->reader_ext, i->owner, i->get_owner_last_error),
+            m_writer(i->tables->writer_ext, i->owner, i->get_owner_last_error)
     {
     }
     FALCOSECURITY_INLINE
@@ -117,10 +119,44 @@ class table_init_input
         }
     }
 
+    FALCOSECURITY_INLINE
+    table_field get_subtable_field(table& main_table, table_field& field,
+                                   const std::string& name,
+                                   state_value_type key_type)
+    {
+        auto entry = main_table.create_entry(m_writer);
+
+        _internal::ss_plugin_table_t* subtable_ptr;
+        field.read_value(m_reader, entry, subtable_ptr);
+
+        auto subtable =
+                table(field.get_name(), field.get_field_type(), subtable_ptr);
+
+        return subtable.get_field(fields(), name, key_type);
+    }
+
+    FALCOSECURITY_INLINE
+    table_field add_subtable_field(table& main_table, table_field& field,
+                                   const std::string& name,
+                                   state_value_type key_type)
+    {
+        auto entry = main_table.create_entry(m_writer);
+
+        _internal::ss_plugin_table_t* subtable_ptr;
+        field.read_value(m_reader, entry, subtable_ptr);
+
+        auto subtable =
+                table(field.get_name(), field.get_field_type(), subtable_ptr);
+
+        return subtable.add_field(fields(), name, key_type);
+    }
+
     private:
     _internal::ss_plugin_owner_t* m_owner;
     const _internal::ss_plugin_init_input* m_input;
     table_fields m_fielder;
+    table_reader m_reader;
+    table_writer m_writer;
 };
 
 class init_input
