@@ -208,6 +208,7 @@ class table_entry
         if(m_entry && m_reader->m_reader)
         {
             m_reader->m_reader->release_table_entry(m_table, m_entry);
+            m_entry = nullptr;
         }
     }
 
