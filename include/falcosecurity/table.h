@@ -160,6 +160,8 @@ class table_entry
 {
     public:
     FALCOSECURITY_INLINE
+    table_entry() { m_entry = nullptr; };
+    FALCOSECURITY_INLINE
     table_entry(table_entry&& o)
     {
         m_entry = o.m_entry;
@@ -182,10 +184,7 @@ class table_entry
     FALCOSECURITY_INLINE
     table_entry& operator=(const table_entry&) = delete;
     FALCOSECURITY_INLINE
-    ~table_entry()
-    {
-        release_entry();
-    }
+    ~table_entry() { release_entry(); }
 
     FALCOSECURITY_INLINE
     table_entry(_internal::ss_plugin_table_entry_t* e,
@@ -203,7 +202,6 @@ class table_entry
     }
 
     private:
-
     FALCOSECURITY_INLINE
     void release_entry()
     {
