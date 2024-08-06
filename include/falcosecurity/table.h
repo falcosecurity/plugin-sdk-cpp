@@ -170,6 +170,7 @@ class table_entry
     FALCOSECURITY_INLINE
     table_entry& operator=(table_entry&& o)
     {
+        release_entry();
         m_entry = o.m_entry;
         m_table = o.m_table;
         m_reader = o.m_reader;
@@ -183,10 +184,7 @@ class table_entry
     FALCOSECURITY_INLINE
     ~table_entry()
     {
-        if(m_entry && m_reader->m_reader)
-        {
-            m_reader->m_reader->release_table_entry(m_table, m_entry);
-        }
+        release_entry();
     }
 
     FALCOSECURITY_INLINE
@@ -205,6 +203,16 @@ class table_entry
     }
 
     private:
+
+    FALCOSECURITY_INLINE
+    void release_entry()
+    {
+        if(m_entry && m_reader->m_reader)
+        {
+            m_reader->m_reader->release_table_entry(m_table, m_entry);
+        }
+    }
+
     _internal::ss_plugin_table_entry_t* m_entry;
     _internal::ss_plugin_table_t* m_table;
     const table_reader* m_reader;
