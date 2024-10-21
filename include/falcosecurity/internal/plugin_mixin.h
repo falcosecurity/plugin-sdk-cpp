@@ -23,6 +23,7 @@ limitations under the License.
 #include <falcosecurity/internal/plugin_mixin_extraction.h>
 #include <falcosecurity/internal/plugin_mixin_parsing.h>
 #include <falcosecurity/internal/plugin_mixin_sourcing.h>
+#include <falcosecurity/internal/plugin_mixin_capture_listening.h>
 
 namespace falcosecurity
 {
@@ -36,9 +37,12 @@ class plugin_mixin
                   plugin_mixin_extraction<
                           Plugin,
                           plugin_mixin_parsing<
-                                  Plugin, plugin_mixin_async<
+                                  Plugin,
+                                  plugin_mixin_async<
+                                          Plugin,
+                                          plugin_mixin_capture_listening<
                                                   Plugin, plugin_mixin_common<
-                                                                  Plugin>>>>>
+                                                                  Plugin>>>>>>
 {
     public:
     plugin_mixin() = default;

@@ -309,4 +309,25 @@ class set_config_input
     const _internal::ss_plugin_set_config_input* m_input;
 };
 
+class capture_listen_input
+{
+    public:
+    FALCOSECURITY_INLINE
+    capture_listen_input(const _internal::ss_plugin_capture_listen_input* i):
+            m_input(i)
+    {
+    }
+    FALCOSECURITY_INLINE
+    capture_listen_input(capture_listen_input&&) = default;
+    FALCOSECURITY_INLINE
+    capture_listen_input& operator=(capture_listen_input&&) = default;
+    FALCOSECURITY_INLINE
+    capture_listen_input(const capture_listen_input&) = default;
+    FALCOSECURITY_INLINE
+    capture_listen_input& operator=(const capture_listen_input&) = default;
+
+    private:
+    const _internal::ss_plugin_capture_listen_input* m_input;
+};
+
 }; // namespace falcosecurity

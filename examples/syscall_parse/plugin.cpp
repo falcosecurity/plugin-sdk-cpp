@@ -156,6 +156,16 @@ class my_plugin
         return true;
     }
 
+    bool capture_open(const falcosecurity::capture_listen_input& in)
+    {
+        return true;
+    }
+
+    bool capture_close(const falcosecurity::capture_listen_input& in)
+    {
+        return true;
+    }
+
     private:
     inline bool evt_type_is_open(falcosecurity::event_type t)
     {
@@ -179,3 +189,4 @@ class my_plugin
 
 FALCOSECURITY_PLUGIN(my_plugin);
 FALCOSECURITY_PLUGIN_EVENT_PARSING(my_plugin);
+FALCOSECURITY_PLUGIN_CAPTURE_LISTENING(my_plugin);
