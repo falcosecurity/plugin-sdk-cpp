@@ -23,3 +23,4 @@ limitations under the License.
 #include <falcosecurity/internal/symbols_extraction.h>
 #include <falcosecurity/internal/symbols_parsing.h>
 #include <falcosecurity/internal/symbols_sourcing.h>
+#include <falcosecurity/internal/symbols_capture_listening.h>
