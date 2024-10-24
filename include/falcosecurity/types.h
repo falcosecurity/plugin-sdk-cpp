@@ -154,10 +154,11 @@ struct field_info
     FALCOSECURITY_INLINE
     field_info(field_value_type t, const std::string& n, const std::string& di,
                const std::string& de, const field_arg& a = field_arg(),
-               bool l = false, const std::vector<std::string>& p = {}):
+               bool l = false, const std::vector<std::string>& p = {}, bool o = false):
             type(t),
             name(n), list(l), arg(a), display(di), description(de),
-            properties(p)
+            properties(p),
+            addOutput(o)
     {
     }
     FALCOSECURITY_INLINE
@@ -176,6 +177,7 @@ struct field_info
     std::string display;
     std::string description;
     std::vector<std::string> properties;
+    bool addOutput = false;
 };
 
 struct open_param

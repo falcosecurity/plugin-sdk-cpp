@@ -95,6 +95,7 @@ template<class Plugin, class Base> class plugin_mixin_extraction : public Base
             entry["name"] = f.name;
             entry["type"] = falcosecurity::to_string(f.type);
             entry["isList"] = f.list;
+            entry["addOutput"] = f.addOutput;
             entry["display"] = f.display;
             entry["desc"] = f.description;
             entry["arg"]["isKey"] = f.arg.key;

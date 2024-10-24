@@ -58,7 +58,8 @@ class my_plugin
         using ft = falcosecurity::field_value_type;
         return {
                 {ft::FTYPE_BOOL, "sample.is_open", "Is Open Type",
-                 "Value is true if event is of open family"},
+                 "Value is true if event is of open family",
+                 {}, false, {}, true}, // use as suggested output format
                 {ft::FTYPE_UINT64, "sample.open_count", "Open Type Count",
                  "Counter for all the events of open family in the event's "
                  "thread thread"},
