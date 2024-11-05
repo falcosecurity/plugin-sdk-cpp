@@ -316,7 +316,8 @@ class capture_listen_input
     capture_listen_input(const _internal::ss_plugin_capture_listen_input* i,
                          const falcosecurity::table_reader& tr,
                          const falcosecurity::table_writer& tw):
-            m_input(i), m_table_reader(tr), m_table_writer(tw)
+            m_input(i),
+            m_table_reader(tr), m_table_writer(tw)
     {
     }
     FALCOSECURITY_INLINE
