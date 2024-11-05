@@ -163,14 +163,16 @@ class my_plugin
     bool capture_open(const falcosecurity::capture_listen_input& in)
     {
         auto& tr = in.get_table_reader();
-        m_threads_table.iterate_entries(tr,
-                                        [this, tr](const falcosecurity::table_entry& e)
-                                        {
-                                            uint64_t tid;
-                                            m_threads_field_tid.read_value(tr, e, tid);
-                                            std::cout << "read thread id: " << std::to_string(tid) << std::endl;
-                                            return true;
-                                        });
+        m_threads_table.iterate_entries(
+                tr,
+                [this, tr](const falcosecurity::table_entry& e)
+                {
+                    uint64_t tid;
+                    m_threads_field_tid.read_value(tr, e, tid);
+                    std::cout << "read thread id: " << std::to_string(tid)
+                              << std::endl;
+                    return true;
+                });
         return true;
     }
 
