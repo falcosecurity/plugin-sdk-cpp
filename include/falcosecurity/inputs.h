@@ -313,8 +313,10 @@ class capture_listen_input
 {
     public:
     FALCOSECURITY_INLINE
-    capture_listen_input(const _internal::ss_plugin_capture_listen_input* i):
-            m_input(i)
+    capture_listen_input(const _internal::ss_plugin_capture_listen_input* i,
+                         const falcosecurity::table_reader& tr,
+                         const falcosecurity::table_writer& tw):
+            m_input(i), m_table_reader(tr), m_table_writer(tw)
     {
     }
     FALCOSECURITY_INLINE
@@ -326,8 +328,22 @@ class capture_listen_input
     FALCOSECURITY_INLINE
     capture_listen_input& operator=(const capture_listen_input&) = default;
 
+    FALCOSECURITY_INLINE
+    const falcosecurity::table_reader& get_table_reader() const
+    {
+        return m_table_reader;
+    }
+
+    FALCOSECURITY_INLINE
+    const falcosecurity::table_writer& get_table_writer() const
+    {
+        return m_table_writer;
+    }
+
     private:
     const _internal::ss_plugin_capture_listen_input* m_input;
+    const falcosecurity::table_reader& m_table_reader;
+    const falcosecurity::table_writer& m_table_writer;
 };
 
 }; // namespace falcosecurity

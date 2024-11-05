@@ -17,6 +17,7 @@ limitations under the License.
 */
 
 #include <falcosecurity/sdk.h>
+#include <iostream>
 
 // todo(jasondellaluce): support these in the SDK
 using _et = falcosecurity::event_type;
@@ -100,6 +101,9 @@ class my_plugin
                 m_threads_table, m_threads_field_file_descriptor, "custom",
                 st::SS_PLUGIN_ST_STRING);
 
+        m_threads_field_tid = m_threads_table.get_field(
+                t.fields(), "tid", st::SS_PLUGIN_ST_UINT64);
+
         falcosecurity::metric m("dummy_metric",
                                 falcosecurity::metric_type::
                                         SS_PLUGIN_METRIC_TYPE_NON_MONOTONIC);
@@ -158,6 +162,15 @@ class my_plugin
 
     bool capture_open(const falcosecurity::capture_listen_input& in)
     {
+        auto& tr = in.get_table_reader();
+        m_threads_table.iterate_entries(tr,
+                                        [this, tr](const falcosecurity::table_entry& e)
+                                        {
+                                            uint64_t tid;
+                                            m_threads_field_tid.read_value(tr, e, tid);
+                                            std::cout << "read thread id: " << std::to_string(tid) << std::endl;
+                                            return true;
+                                        });
         return true;
     }
 
@@ -180,6 +193,7 @@ class my_plugin
     falcosecurity::table m_threads_table;
     falcosecurity::table_field m_threads_field_opencount;
     falcosecurity::table_field m_threads_field_file_descriptor;
+    falcosecurity::table_field m_threads_field_tid;
 
     falcosecurity::table_field m_file_descriptor_field_custom;
 
