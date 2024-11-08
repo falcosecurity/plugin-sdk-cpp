@@ -21,7 +21,7 @@ OUTPUT  := lib$(NAME).so
 
 SDK_DIR := ../..
 SDK_INCLUDE := $(SDK_DIR)/include/
-CXX_FLAGS := -shared -std=c++0x -Wall -fPIC -I$(SDK_INCLUDE)
+CXX_FLAGS := -shared -std=c++17 -Wall -fPIC -I$(SDK_INCLUDE)
 
 all: $(OUTPUT)
 

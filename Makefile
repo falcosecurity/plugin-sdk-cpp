@@ -18,8 +18,9 @@
 
 CURL ?= curl
 PATCH ?= patch
+CLANG_FORMAT ?= clang-format
 
-FALCOSECURITY_LIBS_REVISION ?= 41e44449046409ead033bc17b61ccc1eac788930
+FALCOSECURITY_LIBS_REVISION ?= bb27230c08578ac504af816b51c20d659cb9e16a
 FALCOSECURITY_LIBS_REPO     ?= falcosecurity/libs
 DEPS_INCLUDEDIR             := include/falcosecurity/internal/deps
 DEPS_PLUGIN_LIB_URL         := https://raw.githubusercontent.com/${FALCOSECURITY_LIBS_REPO}/${FALCOSECURITY_LIBS_REVISION}/userspace/plugin
@@ -40,8 +41,8 @@ clean: $(examples_clean)
 
 .PHONY: format
 format:
-	+find ./include -iname *.h -o -iname *.cpp | grep -v "/deps/" | xargs clang-format -i
-	+find ./examples -iname *.h -o -iname *.cpp | grep -v "/deps/" | xargs clang-format -i
+	+find ./include -iname *.h -o -iname *.cpp | grep -v "/deps/" | xargs $(CLANG_FORMAT) -i
+	+find ./examples -iname *.h -o -iname *.cpp | grep -v "/deps/" | xargs $(CLANG_FORMAT) -i
 
 .PHONY: deps
 deps: $(DEPS_INCLUDEDIR)/plugin_types.h $(DEPS_INCLUDEDIR)/plugin_api.h $(DEPS_INCLUDEDIR)/nlohmann/json.hpp
