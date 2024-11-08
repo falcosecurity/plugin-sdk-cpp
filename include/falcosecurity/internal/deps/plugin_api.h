@@ -29,7 +29,7 @@ extern "C" {
 //
 // todo(jasondellaluce): when/if major changes to v4, check and solve all todos
 #define PLUGIN_API_VERSION_MAJOR 3
-#define PLUGIN_API_VERSION_MINOR 9
+#define PLUGIN_API_VERSION_MINOR 10
 #define PLUGIN_API_VERSION_PATCH 0
 
 //
@@ -1053,6 +1053,25 @@ typedef struct {
 		ss_plugin_rc (*set_async_event_handler)(ss_plugin_t* s,
 		                                        ss_plugin_owner_t* owner,
 		                                        const ss_plugin_async_event_handler_t handler);
+
+		//
+		// Called by the framework when a capture file dump is requested.
+		//
+		// Required: no
+		// Arguments:
+		// - s: the plugin state, returned by init(). Can be NULL.
+		// - owner: Opaque pointer to the plugin's owner. Must be passed
+		//	 as an argument to the async event function handler.
+		// - handler: Function handler to be used for sending events to be dumped
+		//   to the plugin's owner. The handler must be invoked with
+		//   the same owner opaque pointer passed to this function, and with
+		//   an event pointer owned and controlled by the plugin. The event
+		//   pointer is not retained by the handler after it returns.
+		//
+		// Return value: A ss_plugin_rc with values SS_PLUGIN_SUCCESS or SS_PLUGIN_FAILURE.
+		ss_plugin_rc (*dump_state)(ss_plugin_t* s,
+		                           ss_plugin_owner_t* owner,
+		                           const ss_plugin_async_event_handler_t handler);
 	};
 
 	// Sets a new plugin configuration when provided by the framework.
