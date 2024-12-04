@@ -668,20 +668,8 @@ class table
         s.table = m_table;
         s.reader = &r;
 
-        auto res = r.m_reader->iterate_entries(m_table,
-                                               iterate_entries_internal, &s);
-        if(!res)
-        {
-            std::string msg = "can't iterate entries";
-            auto err = r.m_get_owner_last_error(r.m_owner);
-            if(err)
-            {
-                msg += ": ";
-                msg += err;
-            }
-            throw plugin_exception(msg);
-        }
-        return res;
+        return r.m_reader->iterate_entries(m_table, iterate_entries_internal,
+                                           &s);
     }
 
     private:
