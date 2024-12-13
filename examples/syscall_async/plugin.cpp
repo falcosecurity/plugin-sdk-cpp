@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#include <sdk.h>
+#include <falcosecurity/sdk.h>
 #include <thread>
 #include <atomic>
 
