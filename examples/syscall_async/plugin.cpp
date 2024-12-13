@@ -74,8 +74,7 @@ class my_plugin
     // (optional)
     std::vector<std::string> get_async_event_sources() { return {"syscall"}; }
 
-    bool start_async_events(
-            std::shared_ptr<falcosecurity::async_event_handler_factory> f)
+    bool start_async_events(std::shared_ptr<falcosecurity::async_event_handler_factory> f)
     {
         m_async_thread_quit = false;
         m_async_thread = std::thread(&my_plugin::async_thread_loop, this,
@@ -93,8 +92,7 @@ class my_plugin
         return true;
     }
 
-    void async_thread_loop(
-            std::unique_ptr<falcosecurity::async_event_handler> h) noexcept
+    void async_thread_loop(std::unique_ptr<falcosecurity::async_event_handler> h) noexcept
     {
         std::string msg;
         uint64_t count = 0;
@@ -131,7 +129,7 @@ class my_plugin
     			{
     				case 0: // myplugin.geteventname
     				{
-    			        std::string event_name = ad.get_name();
+    			        	std::string event_name = ad.get_name();
     					if (debug) { printf("Event Name: %s", event_name.c_str() ); }
     					req.set_value(event_name.c_str(), true);
     					return true;
@@ -140,11 +138,11 @@ class my_plugin
     				case 1: // myplugin.geteventdata
     				{
     					uint32_t json_charbuf_len = 0;
-    			        char* json_charbuf_pointer = (char*)ad.get_data(json_charbuf_len);
-    		        	std::string event_data;
-            	        if(json_charbuf_pointer != nullptr) {
-                    	    	event_data = std::string(json_charbuf_pointer);
-    	        		}
+    			        	char* json_charbuf_pointer = (char*)ad.get_data(json_charbuf_len);
+    		        		std::string event_data;
+            	        		if(json_charbuf_pointer != nullptr) {
+                    	    			event_data = std::string(json_charbuf_pointer);
+    	        			}
     
     					if (debug) { printf("Event Data : %s", event_data.c_str() ); }
     					req.set_value(event_data.c_str(), true);
