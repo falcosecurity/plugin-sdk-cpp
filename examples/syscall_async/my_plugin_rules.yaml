@@ -1,0 +1,6 @@
+- rule: Test Async
+  desc: Alerts when async event is triggered
+  condition: evt.is_async = true 
+  output: |
+    Test async - event name: %myplugin.geteventname -- event data: %myplugin.geteventdata
+  priority: INFO
