@@ -16,7 +16,7 @@ limitations under the License.
 
 */
 
-#include <falcosecurity/sdk.h>
+#include <sdk.h>
 #include <thread>
 #include <atomic>
 
@@ -32,6 +32,8 @@ class my_plugin
     std::string get_description() { return "some description"; }
 
     std::string get_contact() { return "some contact"; }
+
+    bool debug = false;
 
     // (optional)
     bool set_config(falcosecurity::set_config_input& i)
@@ -112,6 +114,66 @@ class my_plugin
         }
     }
 
+    bool extract(const falcosecurity::extract_fields_input &in)
+    {
+
+    	auto& evt = in.get_event_reader();
+    	auto& req = in.get_extract_request();
+    	if (debug) { printf("Received Event Type: %d\n", evt.get_type()); }
+    
+    	switch(evt.get_type())
+        {
+    		case falcosecurity::PPME_ASYNCEVENT_E:
+    		{
+    		
+    			falcosecurity::events::asyncevent_e_decoder ad(evt);
+    			switch(req.get_field_id())
+    			{
+    				case 0: // myplugin.geteventname
+    				{
+    			        std::string event_name = ad.get_name();
+    					if (debug) { printf("Event Name: %s", event_name.c_str() ); }
+    					req.set_value(event_name.c_str(), true);
+    					return true;
+    				}
+    		
+    				case 1: // myplugin.geteventdata
+    				{
+    					uint32_t json_charbuf_len = 0;
+    			        char* json_charbuf_pointer = (char*)ad.get_data(json_charbuf_len);
+    		        	std::string event_data;
+            	        if(json_charbuf_pointer != nullptr) {
+                    	    	event_data = std::string(json_charbuf_pointer);
+    	        		}
+    
+    					if (debug) { printf("Event Data : %s", event_data.c_str() ); }
+    					req.set_value(event_data.c_str(), true);
+    					return true;
+    				}
+    		
+    			}
+    		}
+    
+        }
+    
+    	return false;
+
+    }
+
+    std::vector<falcosecurity::field_info> get_fields()
+    {
+
+        using ft = falcosecurity::field_value_type;
+        return {
+                {ft::FTYPE_STRING, "myplugin.geteventname",
+                 "Returns Async Event Name",
+                 "Returns Async Event Name"},
+		{ft::FTYPE_STRING, "myplugin.geteventdata",
+                 "Returns Async Event Data",
+                 "Returns Async Event Data"}
+        };
+    }
+
     private:
     int m_async_sleep_ms;
     std::thread m_async_thread;
@@ -121,3 +183,4 @@ class my_plugin
 
 FALCOSECURITY_PLUGIN(my_plugin);
 FALCOSECURITY_PLUGIN_ASYNC_EVENTS(my_plugin);
+FALCOSECURITY_PLUGIN_FIELD_EXTRACTION(my_plugin);
