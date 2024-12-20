@@ -30,6 +30,7 @@ limitations under the License.
 #include <string>
 #include <type_traits>
 #include <vector>
+#include <memory>
 
 namespace falcosecurity
 {
@@ -136,6 +137,18 @@ template<class Plugin, class Base> class plugin_mixin_async : public Base
         return SS_PLUGIN_SUCCESS;
     }
 
+    FALCOSECURITY_INLINE
+    ss_plugin_rc dump_state(ss_plugin_owner_t* o,
+                            const ss_plugin_async_event_handler_t h)
+    {
+        FALCOSECURITY_CATCH_ALL(Base::m_last_err_storage, {
+            auto handler = std::make_unique<async_event_handler>(o, h);
+            _dump_state(std::move(handler), static_cast<Plugin*>(this));
+            return SS_PLUGIN_SUCCESS;
+        });
+        return SS_PLUGIN_FAILURE;
+    }
+
     private:
     template<typename T>
     FALCOSECURITY_INLINE auto _get_async_event_sources(T* o)
@@ -167,6 +180,25 @@ template<class Plugin, class Base> class plugin_mixin_async : public Base
 
     FALCOSECURITY_INLINE
     auto _stop_async_events(...) -> void {}
+
+    template<typename T>
+    FALCOSECURITY_INLINE auto
+    _dump_state(std::unique_ptr<falcosecurity::async_event_handler> h, T* o)
+            -> decltype(o->dump_state(std::move(h)))
+    {
+        static_assert(
+                std::is_same<void (T::*)(std::unique_ptr<
+                                         falcosecurity::async_event_handler>),
+                             decltype(&T::dump_state)>::value,
+                "expected signature: void "
+                "dump_state(std::unique_ptr<falcosecurity::async_event_handler>"
+                ")");
+
+        o->dump_state(std::move(h));
+    }
+
+    FALCOSECURITY_INLINE
+    auto _dump_state(...) -> void {}
 };
 
 }; // namespace _internal

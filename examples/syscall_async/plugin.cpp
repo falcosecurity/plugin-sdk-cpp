@@ -112,6 +112,22 @@ class my_plugin
         }
     }
 
+    // (optional)
+    void dump_state(std::unique_ptr<falcosecurity::async_event_handler> h)
+    {
+        falcosecurity::events::asyncevent_e_encoder enc;
+        std::string msg;
+        for(int i = 0; i < 10; i++)
+        {
+            msg = "dumped event #" + std::to_string(i);
+            enc.set_tid(1);
+            enc.set_name("samplenotification");
+            enc.set_data((void*)msg.c_str(), msg.size() + 1);
+            enc.encode(h->writer());
+            h->push();
+        }
+    }
+
     private:
     int m_async_sleep_ms;
     std::thread m_async_thread;

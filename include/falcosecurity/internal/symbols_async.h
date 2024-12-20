@@ -48,5 +48,13 @@ limitations under the License.
         auto p = static_cast<plugin_mixin<__t>*>(s);                           \
         return p->set_async_event_handler(o, h);                               \
     }                                                                          \
+                                                                               \
+    FALCOSECURITY_EXPORT                                                       \
+    ss_plugin_rc plugin_dump_state(ss_plugin_t* s, ss_plugin_owner_t* o,       \
+                                   const ss_plugin_async_event_handler_t h)    \
+    {                                                                          \
+        auto p = static_cast<plugin_mixin<__t>*>(s);                           \
+        return p->dump_state(o, h);                                            \
+    }                                                                          \
     }; /* _internal */                                                         \
     }; /* falcosecurity */

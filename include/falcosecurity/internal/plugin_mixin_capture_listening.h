@@ -55,7 +55,11 @@ class plugin_mixin_capture_listening : public Base
                 "expected signature: bool "
                 "capture_open(const capture_listen_input&)");
         FALCOSECURITY_CATCH_ALL(Base::m_last_err_storage, {
-            capture_listen_input in(i);
+            const auto tr = falcosecurity::table_reader(
+                    i->table_reader_ext, i->owner, i->get_owner_last_error);
+            const auto tw = falcosecurity::table_writer(
+                    i->table_writer_ext, i->owner, i->get_owner_last_error);
+            capture_listen_input in(i, tr, tw);
             if(!Plugin::capture_open(in))
             {
                 return ss_plugin_rc::SS_PLUGIN_FAILURE;
@@ -74,7 +78,11 @@ class plugin_mixin_capture_listening : public Base
                 "expected signature: bool "
                 "capture_close(const capture_listen_input&)");
         FALCOSECURITY_CATCH_ALL(Base::m_last_err_storage, {
-            capture_listen_input in(i);
+            const auto tr = falcosecurity::table_reader(
+                    i->table_reader_ext, i->owner, i->get_owner_last_error);
+            const auto tw = falcosecurity::table_writer(
+                    i->table_writer_ext, i->owner, i->get_owner_last_error);
+            capture_listen_input in(i, tr, tw);
             if(!Plugin::capture_close(in))
             {
                 return ss_plugin_rc::SS_PLUGIN_FAILURE;
