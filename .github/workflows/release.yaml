@@ -1,0 +1,91 @@
+name: Generate release body for published releases
+on:
+  release:
+    types: [published]
+
+# Checks if any concurrent jobs is running for driver release CI and eventually wait for it.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release-settings:
+    runs-on: ubuntu-latest
+    outputs:
+      is_latest: ${{ steps.get_settings.outputs.is_latest }}
+    steps:
+      - name: Get latest release
+        uses: rez0n/actions-github-release@27a57820ee808f8fd940c8a9d1f7188f854aa2b5 # v2.0
+        id: latest_release
+        env:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          type: "stable"
+
+      - name: Get settings for this release
+        id: get_settings
+        shell: python
+        run: |
+          import os
+          import re
+          import sys
+
+          semver_no_meta = '''^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'''
+          tag_name = '${{ github.event.release.tag_name }}'
+
+          is_valid_version = re.match(semver_no_meta, tag_name) is not None
+          if not is_valid_version:
+            print(f'Release version {tag_name} is not a valid full or pre-release. See RELEASE.md for more information.')
+            sys.exit(1)
+
+          is_prerelease = '-' in tag_name
+
+          # Safeguard: you need to both set "latest" in GH and not have suffixes to overwrite latest
+          is_latest = '${{ steps.latest_release.outputs.release }}' == tag_name and not is_prerelease
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as ofp:
+            print(f'is_latest={is_latest}'.lower(), file=ofp)
+
+  release-body-libs:
+    needs: [release-settings]
+    if: ${{ needs.release-settings.outputs.is_latest == 'true' }} # only for latest releases
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        
+      # This will also download libs internal plugin api files  
+      - name: Build
+        run: make -j4  
+
+      - name: Create release body file
+        run: |
+          touch release-body.md
+
+      - name: Extract FALCOSECURITY_LIBS_REVISION
+        run: |
+          FALCOSECURITY_LIBS_REVISION=$(grep FALCOSECURITY_LIBS_REVISION Makefile | head -n1 | awk -F '\?= ' '{print $2}')
+          echo '!'"[LIBS_REVISION](https://img.shields.io/badge/LIBS_REVISION-${FALCOSECURITY_LIBS_REVISION}-yellow)" >> release-body.md
+
+      - name: Extract plugin API version
+        run: |
+          PLUGIN_API_MAJ=$(grep PLUGIN_API_VERSION_MAJOR include/falcosecurity/internal/deps/plugin_api.h | head -n1 | awk -F ' ' '{print $3}')
+          PLUGIN_API_MIN=$(grep PLUGIN_API_VERSION_MINOR include/falcosecurity/internal/deps/plugin_api.h | head -n1 | awk -F ' ' '{print $3}')
+          PLUGIN_API_PATCH=$(grep PLUGIN_API_VERSION_PATCH include/falcosecurity/internal/deps/plugin_api.h | head -n1 | awk -F ' ' '{print $3}')
+          PLUGIN_API_VERS="${PLUGIN_API_MAJ}.${PLUGIN_API_MIN}.${PLUGIN_API_PATCH}"
+          echo '!'"[PLUGIN_API](https://img.shields.io/badge/PLUGIN_API-${PLUGIN_API_VERS}-yellow)" >> release-body.md
+          echo "" >> release-body.md
+
+      - name: Attach release creator to release body
+        run: |
+          echo "" >> release-body.md
+          echo "#### Release Manager @${{ github.event.release.author.login }}" >> release-body.md
+
+      - name: Release
+        uses: softprops/action-gh-release@7b4da11513bf3f43f9999e90eabced41ab8bb048 # v2.2.0
+        with:
+          body_path: ./release-body.md
+          tag_name: ${{ github.event.release.tag_name }}
+          name: ${{ github.event.release.name }}
