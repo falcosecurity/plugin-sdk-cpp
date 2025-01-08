@@ -46,7 +46,7 @@ jobs:
           with open(os.environ['GITHUB_OUTPUT'], 'a') as ofp:
             print(f'is_latest={is_latest}'.lower(), file=ofp)
 
-  release-body-libs:
+  release-body:
     needs: [release-settings]
     if: ${{ needs.release-settings.outputs.is_latest == 'true' }} # only for latest releases
     permissions:
