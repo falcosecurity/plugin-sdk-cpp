@@ -61,5 +61,5 @@ For example, `action required: update plugins to use new sdk version`.
 -->
 
 ```release-note
-
+NONE
 ```
