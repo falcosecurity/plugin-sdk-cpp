@@ -8,7 +8,7 @@ C++ header only library fo facilitate writing [Falcosecurity plugins](https://fa
 
 The library uses the C++11 standards.
 
-> __NOTE:__ master is not guaranteed to be compatible with latest released Falco; use correct release instead to target a specific Falco version!
+> __NOTE:__ main is not guaranteed to be compatible with latest released Falco; use correct release instead to target a specific Falco version!
 
 ## Installation
 
