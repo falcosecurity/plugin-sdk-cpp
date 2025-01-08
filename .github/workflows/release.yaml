@@ -78,6 +78,15 @@ jobs:
           echo '!'"[PLUGIN_API](https://img.shields.io/badge/PLUGIN_API-${PLUGIN_API_VERS}-yellow)" >> release-body.md
           echo "" >> release-body.md
 
+      - name: Generate release notes
+        uses: leodido/rn2md@9c351d81278644c0e17b1ca68edbdba305276c73
+        with:
+          milestone: ${{ github.event.release.tag_name }}
+          output: ./notes.md
+
+      - name: Merge release notes to pre existent body
+        run: cat notes.md >> release-body.md
+
       - name: Attach release creator to release body
         run: |
           echo "" >> release-body.md
