@@ -25,7 +25,7 @@ include(FetchContent)
 FetchContent_Declare(
   plugin-sdk-cpp
   GIT_REPOSITORY https://github.com/falcosecurity/plugin-sdk-cpp.git
-  GIT_TAG        703bd9caab50b139428cea1aaff9974ebee5742e # desired git tag here
+  GIT_TAG        main # or desired git tag here
 )
 FetchContent_MakeAvailable(plugin-sdk-cpp)
 
