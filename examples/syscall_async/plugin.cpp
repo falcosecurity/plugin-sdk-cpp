@@ -128,6 +128,65 @@ class my_plugin
         }
     }
 
+    bool extract(const falcosecurity::extract_fields_input& in)
+    {
+
+        auto& evt = in.get_event_reader();
+        auto& req = in.get_extract_request();
+       
+        logger.log("Received Event Type: " +  evt.get_type()); 
+
+        switch(evt.get_type())
+        {
+        case falcosecurity::PPME_ASYNCEVENT_E:
+        {
+
+            falcosecurity::events::asyncevent_e_decoder ad(evt);
+            switch(req.get_field_id())
+            {
+            case 0: // myplugin.geteventname
+            {
+                std::string event_name = ad.get_name();
+                
+                logger.log("Event Name: " + event_name);
+                
+                req.set_value(event_name.c_str(), true);
+                return true;
+            }
+
+            case 1: // myplugin.geteventdata
+            {
+                uint32_t json_charbuf_len = 0;
+                char* json_charbuf_pointer =
+                        (char*)ad.get_data(json_charbuf_len);
+                std::string event_data;
+                if(json_charbuf_pointer != nullptr)
+                {
+                    event_data = std::string(json_charbuf_pointer);
+                }
+
+                logger.log("Event Data : " + event_data);
+                
+                req.set_value(event_data.c_str(), true);
+                return true;
+            }
+            }
+        }
+        }
+
+        return false;
+    }
+
+    std::vector<falcosecurity::field_info> get_fields()
+    {
+
+        using ft = falcosecurity::field_value_type;
+        return {{ft::FTYPE_STRING, "myplugin.geteventname",
+                 "Returns Async Event Name", "Returns Async Event Name"},
+                {ft::FTYPE_STRING, "myplugin.geteventdata",
+                 "Returns Async Event Data", "Returns Async Event Data"}};
+    }
+
     private:
     int m_async_sleep_ms;
     std::thread m_async_thread;
@@ -137,3 +196,4 @@ class my_plugin
 
 FALCOSECURITY_PLUGIN(my_plugin);
 FALCOSECURITY_PLUGIN_ASYNC_EVENTS(my_plugin);
+FALCOSECURITY_PLUGIN_FIELD_EXTRACTION(my_plugin);
