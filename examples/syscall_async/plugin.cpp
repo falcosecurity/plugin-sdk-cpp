@@ -133,8 +133,8 @@ class my_plugin
 
         auto& evt = in.get_event_reader();
         auto& req = in.get_extract_request();
-       
-        logger.log("Received Event Type: " +  evt.get_type()); 
+
+        logger.log("Received Event Type: " + evt.get_type());
 
         switch(evt.get_type())
         {
@@ -147,9 +147,9 @@ class my_plugin
             case 0: // myplugin.geteventname
             {
                 std::string event_name = ad.get_name();
-                
+
                 logger.log("Event Name: " + event_name);
-                
+
                 req.set_value(event_name.c_str(), true);
                 return true;
             }
@@ -166,7 +166,7 @@ class my_plugin
                 }
 
                 logger.log("Event Data : " + event_data);
-                
+
                 req.set_value(event_data.c_str(), true);
                 return true;
             }
