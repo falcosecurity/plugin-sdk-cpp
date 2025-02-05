@@ -20,6 +20,7 @@ limitations under the License.
 
 #include <falcosecurity/internal/hacks.h>
 #include <falcosecurity/table.h>
+#include <falcosecurity/base_table.h>
 #include <falcosecurity/types.h>
 #include <falcosecurity/event_reader.h>
 #include <falcosecurity/extract_request.h>

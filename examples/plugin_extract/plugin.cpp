@@ -19,6 +19,32 @@ limitations under the License.
 #include <falcosecurity/sdk.h>
 #include <thread>
 #include <atomic>
+#include <iostream>
+
+class my_table : public falcosecurity::base_table<my_table>
+{
+    public:
+    my_table() : falcosecurity::base_table<my_table>() {};
+
+    std::string get_name()
+    {
+        return "my_table";
+    }
+
+    falcosecurity::state_value_type get_key_type()
+    {
+        return falcosecurity::state_value_type::SS_PLUGIN_ST_INT64;
+    }
+
+    std::vector<falcosecurity::table_field_info> list_fields()
+    {
+        std::vector<falcosecurity::table_field_info> infos;
+        auto fi = falcosecurity::table_field_info(falcosecurity::_internal::SS_PLUGIN_ST_INT8, "my_field", false);
+        infos.push_back(fi);
+
+        return infos;
+    }
+};
 
 class my_plugin
 {
@@ -60,6 +86,23 @@ class my_plugin
         logger = i.get_logger();
         logger.log("plugin initialized");
 
+        auto& t = i.tables();
+
+        // add the custom table
+        m_table = std::make_unique<my_table>();
+        t.add_table(m_table->get_table_input());
+
+        // get the table fields through the api to check if the conversion works
+        m_falco_table = t.get_table("my_table", falcosecurity::state_value_type::SS_PLUGIN_ST_INT64);
+
+        auto fields = m_falco_table.list_fields(t.fields());
+
+        for(auto& f : fields)
+        {
+            std::cout << "Field name: " << f.name << std::endl;
+        }
+
+
         return true;
     }
 
@@ -90,6 +133,11 @@ class my_plugin
 
     private:
     falcosecurity::logger logger;
+
+    // table handle through api
+    falcosecurity::table m_falco_table;
+    // my actual table
+    std::unique_ptr<my_table> m_table;
 };
 
 FALCOSECURITY_PLUGIN(my_plugin);
