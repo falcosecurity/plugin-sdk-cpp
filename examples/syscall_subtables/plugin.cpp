@@ -90,6 +90,16 @@ class my_plugin
                 t.get_subtable_field(m_threads_table, m_threads_field_args,
                                      "value", st::SS_PLUGIN_ST_STRING);
 
+        // get the 'cgroups' field accessor from the cgroups table
+        m_cgroups_table = m_threads_table.get_field(t.fields(), "cgroups",
+                                                    st::SS_PLUGIN_ST_TABLE);
+        m_cgroups_table_field_name =
+                t.get_subtable_field(m_threads_table, m_cgroups_table, "first",
+                                     st::SS_PLUGIN_ST_STRING);
+        m_cgroups_table_field_value =
+                t.get_subtable_field(m_threads_table, m_cgroups_table, "second",
+                                     st::SS_PLUGIN_ST_STRING);
+
         return true;
     }
 
@@ -154,6 +164,34 @@ class my_plugin
 
                         return true;
                     });
+
+            
+            // get the cgroups table of the thread
+            auto cgroups_table = m_threads_table.get_subtable(
+                    tr, m_cgroups_table, thread_entry, st::SS_PLUGIN_ST_INT64);
+
+            // iterate all the entries in the cgroup table
+            std::printf("\nListing cgroups for TID %ld \n", tid);
+            cgroups_table.iterate_entries(
+                    tr,
+                    [this, tr](const falcosecurity::table_entry& e)
+                    {
+                        std::string cgroup_name;
+                        m_cgroups_table_field_name.read_value(tr, e,
+                                                              cgroup_name);
+                        std::string cgroup_value;
+                        m_cgroups_table_field_value.read_value(tr, e,
+                                                               cgroup_value);
+
+                        if(!cgroup_name.empty() && !cgroup_value.empty())
+                        {
+                            std::printf("CGROUP NAME: %s  - CGROUP VALUE: %s\n",
+                                        cgroup_name.c_str(),
+                                        cgroup_value.c_str());
+                        }
+
+                        return true;
+                    });
         }
         return true;
     }
@@ -176,6 +214,10 @@ class my_plugin
 
     falcosecurity::table_field m_file_descriptor_field_name;
     falcosecurity::table_field m_args_field;
+
+    falcosecurity::table_field m_cgroups_table;
+    falcosecurity::table_field m_cgroups_table_field_name;
+    falcosecurity::table_field m_cgroups_table_field_value;
 };
 
 FALCOSECURITY_PLUGIN(my_plugin);
