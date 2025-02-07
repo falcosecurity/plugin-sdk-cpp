@@ -165,7 +165,6 @@ class my_plugin
                         return true;
                     });
 
-            
             // get the cgroups table of the thread
             auto cgroups_table = m_threads_table.get_subtable(
                     tr, m_cgroups_table, thread_entry, st::SS_PLUGIN_ST_INT64);
