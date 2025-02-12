@@ -20,7 +20,7 @@ limitations under the License.
 
 #include <falcosecurity/internal/hacks.h>
 #include <falcosecurity/table.h>
-#include <falcosecurity/base_table.h>
+#include <falcosecurity/plugin_table.h>
 #include <falcosecurity/types.h>
 #include <falcosecurity/event_reader.h>
 #include <falcosecurity/extract_request.h>
@@ -36,8 +36,7 @@ class table_init_input
     FALCOSECURITY_INLINE
     table_init_input(_internal::ss_plugin_owner_t* o,
                      const _internal::ss_plugin_init_input* i):
-            m_owner(o),
-            m_input(i),
+            m_owner(o), m_input(i),
             m_fielder(i->tables->fields_ext, i->owner, i->get_owner_last_error),
             m_reader(i->tables->reader_ext, i->owner, i->get_owner_last_error),
             m_writer(i->tables->writer_ext, i->owner, i->get_owner_last_error)
@@ -201,8 +200,7 @@ class parse_event_input
     parse_event_input(const falcosecurity::event_reader& er,
                       const falcosecurity::table_reader& tr,
                       const falcosecurity::table_writer& tw):
-            m_evt_reader(er),
-            m_table_reader(tr), m_table_writer(tw)
+            m_evt_reader(er), m_table_reader(tr), m_table_writer(tw)
     {
     }
     FALCOSECURITY_INLINE
@@ -244,8 +242,7 @@ class extract_fields_input
     FALCOSECURITY_INLINE
     extract_fields_input(const falcosecurity::event_reader& er,
                          const falcosecurity::table_reader& tr):
-            m_evt_reader(er),
-            m_table_reader(tr), m_extract_request(nullptr)
+            m_evt_reader(er), m_table_reader(tr), m_extract_request(nullptr)
     {
     }
     FALCOSECURITY_INLINE
@@ -317,8 +314,7 @@ class capture_listen_input
     capture_listen_input(const _internal::ss_plugin_capture_listen_input* i,
                          const falcosecurity::table_reader& tr,
                          const falcosecurity::table_writer& tw):
-            m_input(i),
-            m_table_reader(tr), m_table_writer(tw)
+            m_input(i), m_table_reader(tr), m_table_writer(tw)
     {
     }
     FALCOSECURITY_INLINE
