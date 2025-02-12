@@ -32,6 +32,70 @@ constexpr auto PPME_SYSCALL_OPENAT2_X = (_et)327;
 constexpr auto PPME_SYSCALL_OPEN_BY_HANDLE_AT_E = (_et)336;
 constexpr auto PPME_SYSCALL_OPEN_BY_HANDLE_AT_X = (_et)337;
 
+// Exposes a std::vector<std::string> as a table
+class my_table : public falcosecurity::plugin_table<my_table, uint64_t>
+{
+    public:
+    my_table(): falcosecurity::plugin_table<my_table, uint64_t>() {};
+
+    std::string& get_name() { return name; }
+
+    uint64_t get_size() { return data.size(); }
+
+    falcosecurity::state_value_type get_key_type()
+    {
+        return falcosecurity::state_value_type::SS_PLUGIN_ST_UINT64;
+    }
+
+    std::vector<falcosecurity::table_field_info> list_fields()
+    {
+        std::vector<falcosecurity::table_field_info> infos;
+        auto fi = falcosecurity::table_field_info(
+                falcosecurity::state_value_type::SS_PLUGIN_ST_STRING, "value",
+                false);
+        infos.push_back(fi);
+
+        return infos;
+    }
+
+    falcosecurity::plugin_table_field*
+    get_field(const std::string& name,
+              falcosecurity::state_value_type data_type)
+    {
+        return static_cast<falcosecurity::plugin_table_field*>(&data);
+    }
+
+    falcosecurity::plugin_table_entry* get_entry(uint64_t key)
+    {
+        if(data.size() > key)
+        {
+            return static_cast<falcosecurity::plugin_table_entry*>(
+                    (void*)(key + 1));
+        }
+        return nullptr;
+    }
+
+    bool read_entry_field(falcosecurity::plugin_table_entry* e,
+                          const falcosecurity::plugin_table_field* f,
+                          falcosecurity::plugin_state_data* out)
+    {
+        auto index = (uint64_t)(e)-1;
+
+        if(data.size() > index)
+        {
+            auto v = data[index];
+            falcosecurity::_internal::write_state_data<std::string>(out, v);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    std::string name = "my_table";
+    std::vector<std::string> data;
+};
+
 class my_plugin
 {
     public:
@@ -88,7 +152,7 @@ class my_plugin
 
         using st = falcosecurity::state_value_type;
         auto& t = i.tables();
-        m_threads_table = t.get_table("threads", st::SS_PLUGIN_ST_INT64);
+        /*m_threads_table = t.get_table("threads", st::SS_PLUGIN_ST_INT64);
         m_threads_field_opencount = m_threads_table.add_field(
                 t.fields(), "open_evt_count", st::SS_PLUGIN_ST_UINT64);
 
@@ -111,21 +175,46 @@ class my_plugin
         m_metrics.push_back(m);
 
         falcosecurity::metric ec("evt_count");
-        m_metrics.push_back(ec);
+        m_metrics.push_back(ec);*/
+
+        // add the custom table
+        m_table = my_table();
+        t.add_table(m_table.get_table_input());
+
+        // add some data to the table
+        m_table.data.push_back("dummy0");
+        m_table.data.push_back("dummy1");
+        m_table.data.push_back("dummy2");
+
+        // get the table fields through the api to check if the conversion works
+        m_plugin_table = t.get_table(
+                "my_table",
+                falcosecurity::state_value_type::SS_PLUGIN_ST_UINT64);
+
+        m_plugin_table_field = m_plugin_table.get_field(
+                t.fields(), "value", st::SS_PLUGIN_ST_STRING);
 
         return true;
     }
 
     bool parse_event(const falcosecurity::parse_event_input& in)
     {
-        // update counter for current thread
-        auto& evt = in.get_event_reader();
-        if(evt_type_is_open(evt.get_type()))
+        auto& tr = in.get_table_reader();
+
+        // test plugin table
+        auto entry = m_plugin_table.get_entry(tr, 1);
+        std::string out;
+        m_plugin_table_field.read_value(tr, entry, out);
+
+        std::fprintf(stderr, "Entry value: %s\n", out.c_str());
+
+        /*if(evt_type_is_open(evt.get_type()))
         {
             auto& tr = in.get_table_reader();
             auto& tw = in.get_table_writer();
 
-            auto tinfo = m_threads_table.get_entry(tr, (int64_t)evt.get_tid());
+            auto tinfo = m_threads_table.get_entry(tr,
+            (int64_t)evt.get_tid());
 
             uint64_t count = 0;
             m_threads_field_opencount.read_value(tr, tinfo, count);
@@ -156,13 +245,13 @@ class my_plugin
 
             // update 'evt_count' metric
             m_metrics.at(1).set_value(count);
-        }
+        }*/
         return true;
     }
 
     bool capture_open(const falcosecurity::capture_listen_input& in)
     {
-        auto& tr = in.get_table_reader();
+        /*auto& tr = in.get_table_reader();
         m_threads_table.iterate_entries(
                 tr,
                 [this, tr](const falcosecurity::table_entry& e)
@@ -172,7 +261,7 @@ class my_plugin
                     std::cout << "read thread id: " << std::to_string(tid)
                               << std::endl;
                     return true;
-                });
+                });*/
         return true;
     }
 
@@ -201,6 +290,12 @@ class my_plugin
 
     falcosecurity::logger logger;
     std::vector<falcosecurity::metric> m_metrics;
+
+    // table handle through api
+    falcosecurity::table m_plugin_table;
+    falcosecurity::table_field m_plugin_table_field;
+    // my actual table
+    my_table m_table;
 };
 
 FALCOSECURITY_PLUGIN(my_plugin);
