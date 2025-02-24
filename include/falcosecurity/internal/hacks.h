@@ -35,7 +35,13 @@ limitations under the License.
 
 #define FALCOSECURITY_EXPORT extern "C"
 
+#ifndef _MSC_VER
+// Non-msvc
 #define FALCOSECURITY_INLINE __attribute__((always_inline)) inline
+#else
+// msvc
+#define FALCOSECURITY_INLINE __forceinline
+#endif
 
 #define FALCOSECURITY_CATCH_ALL(errdest, block)                                \
     try                                                                        \
