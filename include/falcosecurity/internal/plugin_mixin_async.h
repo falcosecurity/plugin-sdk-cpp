@@ -142,8 +142,7 @@ template<class Plugin, class Base> class plugin_mixin_async : public Base
                             const ss_plugin_async_event_handler_t h)
     {
         FALCOSECURITY_CATCH_ALL(Base::m_last_err_storage, {
-            auto handler = std::make_unique<async_event_handler>(o, h);
-            _dump_state(std::move(handler), static_cast<Plugin*>(this));
+            _dump_state(o, h, static_cast<Plugin*>(this));
             return SS_PLUGIN_SUCCESS;
         });
         return SS_PLUGIN_FAILURE;
@@ -183,8 +182,10 @@ template<class Plugin, class Base> class plugin_mixin_async : public Base
 
     template<typename T>
     FALCOSECURITY_INLINE auto
-    _dump_state(std::unique_ptr<falcosecurity::async_event_handler> h, T* o)
-            -> decltype(o->dump_state(std::move(h)))
+    _dump_state(ss_plugin_owner_t* owner,
+                const ss_plugin_async_event_handler_t h, T* o)
+            -> decltype(o->dump_state(std::make_unique<async_event_handler>(o,
+                                                                            h)))
     {
         static_assert(
                 std::is_same<void (T::*)(std::unique_ptr<
@@ -194,7 +195,7 @@ template<class Plugin, class Base> class plugin_mixin_async : public Base
                 "dump_state(std::unique_ptr<falcosecurity::async_event_handler>"
                 ")");
 
-        o->dump_state(std::move(h));
+        o->dump_state(std::make_unique<async_event_handler>(o, h));
     }
 
     FALCOSECURITY_INLINE
