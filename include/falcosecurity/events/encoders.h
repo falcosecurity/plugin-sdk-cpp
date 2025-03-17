@@ -49,19 +49,31 @@ class pluginevent_e_encoder
         w.grow(26 + (sizeof(uint32_t) * 2) + sizeof(uint32_t) + m_datalen);
         uint8_t* evt = (uint8_t*)w.get_buf();
         uint8_t* parambuf = evt + 26;
-        *((uint64_t*)(evt + 0)) = m_ts;
-        *((uint64_t*)(evt + 8)) = m_tid;
-        *((uint16_t*)(evt + 20)) = 322;
-        *((uint32_t*)(evt + 22)) = 2;
-        *((uint32_t*)parambuf) = sizeof(uint32_t);
+
+        memcpy(&evt[0], &m_ts, sizeof(m_ts));
+        memcpy(&evt[8], &m_tid, sizeof(m_tid));
+
+        uint16_t val_16 = 322;
+        memcpy(&evt[20], &val_16, sizeof(val_16));
+
+        uint32_t val_32 = 2;
+        memcpy(&evt[22], &val_32, sizeof(val_32));
+
+        val_32 = sizeof(uint32_t);
+        memcpy(parambuf, &val_32, sizeof(uint32_t));
         parambuf += sizeof(uint32_t);
-        *((uint32_t*)parambuf) = m_datalen;
+
+        memcpy(parambuf, &m_datalen, sizeof(m_datalen));
         parambuf += sizeof(uint32_t);
-        *((uint32_t*)parambuf) = m_plugin_id;
+
+        memcpy(parambuf, &m_plugin_id, sizeof(m_plugin_id));
         parambuf += sizeof(uint32_t);
+
         memcpy(parambuf, m_data, m_datalen);
         parambuf += m_datalen;
-        *((uint32_t*)(evt + 16)) = (uint32_t)(parambuf - evt);
+
+        val_32 = (uint32_t)(parambuf - evt);
+        memcpy(&evt[16], &val_32, sizeof(val_32));
     }
 
     FALCOSECURITY_INLINE
@@ -109,23 +121,38 @@ class asyncevent_e_encoder
                (m_name.length() + 1) + m_datalen);
         uint8_t* evt = (uint8_t*)w.get_buf();
         uint8_t* parambuf = evt + 26;
-        *((uint64_t*)(evt + 0)) = m_ts;
-        *((uint64_t*)(evt + 8)) = m_tid;
-        *((uint16_t*)(evt + 20)) = 402;
-        *((uint32_t*)(evt + 22)) = 3;
-        *((uint32_t*)parambuf) = sizeof(uint32_t);
+
+        memcpy(&evt[0], &m_ts, sizeof(m_ts));
+        memcpy(&evt[8], &m_tid, sizeof(m_tid));
+
+        uint16_t val_16 = 402;
+        memcpy(&evt[20], &val_16, sizeof(val_16));
+
+        uint32_t val_32 = 3;
+        memcpy(&evt[22], &val_32, sizeof(val_32));
+
+        val_32 = sizeof(uint32_t);
+        memcpy(parambuf, &val_32, sizeof(uint32_t));
         parambuf += sizeof(uint32_t);
-        *((uint32_t*)parambuf) = m_name.length() + 1;
+
+        val_32 = m_name.length() + 1;
+        memcpy(parambuf, &val_32, sizeof(uint32_t));
         parambuf += sizeof(uint32_t);
-        *((uint32_t*)parambuf) = m_datalen;
+
+        memcpy(parambuf, &m_datalen, sizeof(m_datalen));
         parambuf += sizeof(uint32_t);
-        *((uint32_t*)parambuf) = m_plugin_id;
+
+        memcpy(parambuf, &m_plugin_id, sizeof(m_plugin_id));
         parambuf += sizeof(uint32_t);
+
         memcpy(parambuf, m_name.c_str(), m_name.length() + 1);
         parambuf += m_name.length() + 1;
+
         memcpy(parambuf, m_data, m_datalen);
         parambuf += m_datalen;
-        *((uint32_t*)(evt + 16)) = (uint32_t)(parambuf - evt);
+
+        val_32 = (uint32_t)(parambuf - evt);
+        memcpy(&evt[16], &val_32, sizeof(val_32));
     }
 
     FALCOSECURITY_INLINE
