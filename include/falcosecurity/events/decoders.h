@@ -48,11 +48,13 @@ class pluginevent_e_decoder
         }
 
         uint8_t* parambuf = ((uint8_t*)r.get_buf() + 26);
-        parambuf += sizeof(uint32_t);
-        m_datalen = *(uint32_t*)parambuf;
 
         parambuf += sizeof(uint32_t);
-        m_plugin_id = *(uint32_t*)parambuf;
+        memcpy(&m_datalen, parambuf, sizeof(uint32_t));
+
+        parambuf += sizeof(uint32_t);
+        memcpy(&m_plugin_id, parambuf, sizeof(uint32_t));
+
         parambuf += sizeof(uint32_t);
         m_data = (void*)parambuf;
     }
@@ -96,15 +98,20 @@ class asyncevent_e_decoder
         }
 
         uint8_t* parambuf = ((uint8_t*)r.get_buf() + 26);
-        parambuf += sizeof(uint32_t);
-        uint32_t namelen = *(uint32_t*)parambuf;
-        parambuf += sizeof(uint32_t);
-        m_datalen = *(uint32_t*)parambuf;
 
         parambuf += sizeof(uint32_t);
-        m_plugin_id = *(uint32_t*)parambuf;
+        uint32_t namelen;
+        memcpy(&namelen, parambuf, sizeof(uint32_t));
+
+        parambuf += sizeof(uint32_t);
+        memcpy(&m_datalen, parambuf, sizeof(uint32_t));
+
+        parambuf += sizeof(uint32_t);
+        memcpy(&m_plugin_id, parambuf, sizeof(uint32_t));
+
         parambuf += sizeof(uint32_t);
         m_name = (const char*)parambuf;
+
         parambuf += namelen;
         m_data = (void*)parambuf;
     }
