@@ -323,11 +323,11 @@ class capture_listen_input
     FALCOSECURITY_INLINE
     capture_listen_input(capture_listen_input&&) = default;
     FALCOSECURITY_INLINE
-    capture_listen_input& operator=(capture_listen_input&&) = default;
+    capture_listen_input& operator=(capture_listen_input&&) = delete;
     FALCOSECURITY_INLINE
     capture_listen_input(const capture_listen_input&) = default;
     FALCOSECURITY_INLINE
-    capture_listen_input& operator=(const capture_listen_input&) = default;
+    capture_listen_input& operator=(const capture_listen_input&) = delete;
 
     FALCOSECURITY_INLINE
     const falcosecurity::table_reader& get_table_reader() const
