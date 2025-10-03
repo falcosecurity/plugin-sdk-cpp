@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
-# Copyright (C) 2023 The Falco Authors.
+# Copyright (C) 2025 The Falco Authors.
 #
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,8 @@ CURL ?= curl
 PATCH ?= patch
 CLANG_FORMAT ?= clang-format
 
-FALCOSECURITY_LIBS_REVISION ?= 0.20.0
+# Plugin API v3.12.0 from libs 0.22 dev (not released yet)
+FALCOSECURITY_LIBS_REVISION ?= f8f2249d72bbe558d2f05bb5eb8df585f179538b
 FALCOSECURITY_LIBS_REPO     ?= falcosecurity/libs
 DEPS_INCLUDEDIR             := include/falcosecurity/internal/deps
 DEPS_PLUGIN_LIB_URL         := https://raw.githubusercontent.com/${FALCOSECURITY_LIBS_REPO}/${FALCOSECURITY_LIBS_REVISION}/userspace/plugin
