@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /*
-Copyright (C) 2023 The Falco Authors.
+Copyright (C) 2025 The Falco Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -171,6 +171,19 @@ template<class Plugin> class plugin_mixin_common : public Plugin
         return m_metrics_storage.data();
     }
 
+    FALCOSECURITY_INLINE
+    const char* get_required_event_schema_version() noexcept
+    {
+        auto result =
+                _get_required_event_schema_version(static_cast<Plugin*>(this));
+        if(result.empty())
+        {
+            return nullptr;
+        }
+        m_str_storage = result;
+        return m_str_storage.c_str();
+    }
+
     private:
     template<typename T>
     FALCOSECURITY_INLINE auto _destroy(T* o) -> decltype(o->destroy())
@@ -266,6 +279,22 @@ template<class Plugin> class plugin_mixin_common : public Plugin
     {
         return metrics_empty;
     }
+
+    template<typename T>
+    FALCOSECURITY_INLINE auto _get_required_event_schema_version(T* o)
+            -> decltype(o->get_required_event_schema_version())
+    {
+        static_assert(
+                std::is_same<
+                        std::string (T::*)(),
+                        decltype(&T::get_required_event_schema_version)>::value,
+                "expected signature: std::string "
+                "get_required_event_schema_version()");
+        return o->get_required_event_schema_version();
+    }
+
+    FALCOSECURITY_INLINE
+    auto _get_required_event_schema_version(...) -> std::string { return ""; }
 };
 
 }; // namespace _internal

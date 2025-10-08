@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /*
-Copyright (C) 2023 The Falco Authors.
+Copyright (C) 2025 The Falco Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -102,6 +102,13 @@ limitations under the License.
     {                                                                          \
         auto p = static_cast<plugin_mixin<__t>*>(s);                           \
         return p->get_metrics(num_metrics);                                    \
+    }                                                                          \
+                                                                               \
+    FALCOSECURITY_EXPORT                                                       \
+    const char* plugin_get_required_event_schema_version(ss_plugin_t* s)       \
+    {                                                                          \
+        auto p = static_cast<plugin_mixin<__t>*>(s);                           \
+        return p->get_required_event_schema_version();                         \
     }                                                                          \
     }; /* _internal */                                                         \
     }; /* falcosecurity */

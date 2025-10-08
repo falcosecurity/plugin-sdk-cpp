@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /*
-Copyright (C) 2023 The Falco Authors.
+Copyright (C) 2025 The Falco Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,8 +23,6 @@ limitations under the License.
 using _et = falcosecurity::event_type;
 constexpr auto PPME_SYSCALL_OPEN_E = (_et)2;
 constexpr auto PPME_SYSCALL_OPEN_X = (_et)3;
-constexpr auto PPME_SYSCALL_OPENAT_E = (_et)102;
-constexpr auto PPME_SYSCALL_OPENAT_X = (_et)103;
 constexpr auto PPME_SYSCALL_OPENAT_2_E = (_et)306;
 constexpr auto PPME_SYSCALL_OPENAT_2_X = (_et)307;
 constexpr auto PPME_SYSCALL_OPENAT2_E = (_et)326;
@@ -46,13 +44,14 @@ class my_plugin
     std::string get_contact() { return "some contact"; }
 
     // (optional)
+    std::string get_required_event_schema_version() { return "4.0.0"; }
+
+    // (optional)
     std::vector<falcosecurity::event_type> get_parse_event_types()
     {
         return {
                 PPME_SYSCALL_OPEN_E,
                 PPME_SYSCALL_OPEN_X,
-                PPME_SYSCALL_OPENAT_E,
-                PPME_SYSCALL_OPENAT_X,
                 PPME_SYSCALL_OPENAT_2_E,
                 PPME_SYSCALL_OPENAT_2_X,
                 PPME_SYSCALL_OPENAT2_E,
@@ -185,7 +184,6 @@ class my_plugin
     inline bool evt_type_is_open(falcosecurity::event_type t)
     {
         return t == PPME_SYSCALL_OPEN_E || t == PPME_SYSCALL_OPEN_X ||
-               t == PPME_SYSCALL_OPENAT_E || t == PPME_SYSCALL_OPENAT_X ||
                t == PPME_SYSCALL_OPENAT_2_E || t == PPME_SYSCALL_OPENAT_2_X ||
                t == PPME_SYSCALL_OPENAT2_E || t == PPME_SYSCALL_OPENAT2_X ||
                t == PPME_SYSCALL_OPEN_BY_HANDLE_AT_E ||
