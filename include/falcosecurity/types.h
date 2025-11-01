@@ -134,6 +134,8 @@ struct field_arg
     FALCOSECURITY_INLINE
     field_arg() = default;
     FALCOSECURITY_INLINE
+    field_arg(bool k, bool i, bool r): key(k), index(i), required(r) {}
+    FALCOSECURITY_INLINE
     field_arg(field_arg&&) = default;
     FALCOSECURITY_INLINE
     field_arg& operator=(field_arg&&) = default;
