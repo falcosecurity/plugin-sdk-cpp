@@ -19,6 +19,7 @@ limitations under the License.
 #include <falcosecurity/sdk.h>
 #include <thread>
 #include <atomic>
+#include <iostream>
 
 class my_plugin
 {

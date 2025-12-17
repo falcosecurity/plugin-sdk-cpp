@@ -74,8 +74,7 @@ class table_fields
     table_fields(const _internal::ss_plugin_table_fields_vtable_ext* f,
                  _internal::ss_plugin_owner_t* o,
                  const char* (*glerr)(_internal::ss_plugin_owner_t* o)):
-            m_fields(f),
-            m_owner(o), m_get_owner_last_error(glerr)
+            m_fields(f), m_owner(o), m_get_owner_last_error(glerr)
     {
     }
     FALCOSECURITY_INLINE
@@ -103,8 +102,7 @@ class table_reader
     table_reader(const _internal::ss_plugin_table_reader_vtable_ext* r,
                  _internal::ss_plugin_owner_t* o,
                  const char* (*glerr)(_internal::ss_plugin_owner_t* o)):
-            m_reader(r),
-            m_owner(o), m_get_owner_last_error(glerr)
+            m_reader(r), m_owner(o), m_get_owner_last_error(glerr)
     {
     }
     FALCOSECURITY_INLINE
@@ -133,8 +131,7 @@ class table_writer
     table_writer(const _internal::ss_plugin_table_writer_vtable_ext* w,
                  _internal::ss_plugin_owner_t* o,
                  const char* (*glerr)(_internal::ss_plugin_owner_t* o)):
-            m_writer(w),
-            m_owner(o), m_get_owner_last_error(glerr)
+            m_writer(w), m_owner(o), m_get_owner_last_error(glerr)
     {
     }
     FALCOSECURITY_INLINE
@@ -189,15 +186,13 @@ class table_entry
     FALCOSECURITY_INLINE
     table_entry(_internal::ss_plugin_table_entry_t* e,
                 _internal::ss_plugin_table_t* t, const table_reader& r):
-            m_entry(e),
-            m_table(t), m_reader(&r)
+            m_entry(e), m_table(t), m_reader(&r)
     {
     }
     FALCOSECURITY_INLINE
     table_entry(_internal::ss_plugin_table_entry_t* e,
                 _internal::ss_plugin_table_t* t, const table_reader* r):
-            m_entry(e),
-            m_table(t), m_reader(r)
+            m_entry(e), m_table(t), m_reader(r)
     {
     }
 
@@ -258,8 +253,7 @@ class table_stale_entry
     FALCOSECURITY_INLINE
     table_stale_entry(_internal::ss_plugin_table_entry_t* e,
                       _internal::ss_plugin_table_t* t, const table_writer& w):
-            m_entry(e),
-            m_table(t), m_writer(&w)
+            m_entry(e), m_table(t), m_writer(&w)
     {
     }
 
@@ -284,8 +278,7 @@ class table_field
     FALCOSECURITY_INLINE
     table_field(const std::string& n, _internal::ss_plugin_state_type ft,
                 _internal::ss_plugin_table_field_t* f):
-            m_name(n),
-            m_field_type(ft), m_field(f)
+            m_name(n), m_field_type(ft), m_field(f)
     {
     }
     FALCOSECURITY_INLINE
@@ -324,7 +317,7 @@ class table_field
             }
             throw plugin_exception(msg);
         }
-        _internal::read_state_data<T>(m_data, out);
+        _internal::read_state_data<T>(&m_data, out);
     }
 
     template<typename T>
@@ -345,7 +338,7 @@ class table_field
             }
             throw plugin_exception(msg);
         }
-        _internal::read_state_data<T>(m_data, out);
+        _internal::read_state_data<T>(&m_data, out);
     }
 
     template<typename T>
@@ -353,7 +346,7 @@ class table_field
                                           const table_entry& e, const T& in)
     {
         check_type(in);
-        _internal::write_state_data<T>(m_data, in);
+        _internal::write_state_data<T>(&m_data, in);
         auto res = w.m_writer->write_entry_field(e.m_table, e.m_entry, m_field,
                                                  &m_data);
         if(res != result_code::SS_PLUGIN_SUCCESS)
@@ -374,7 +367,7 @@ class table_field
     write_value(const table_writer& w, const table_stale_entry& e, const T& in)
     {
         check_type(in);
-        _internal::write_state_data<T>(m_data, in);
+        _internal::write_state_data<T>(&m_data, in);
         auto res = w.m_writer->write_entry_field(e.m_table, e.m_entry, m_field,
                                                  &m_data);
         if(res != result_code::SS_PLUGIN_SUCCESS)
@@ -417,8 +410,7 @@ class table
     FALCOSECURITY_INLINE
     table(const std::string& n, _internal::ss_plugin_state_type kt,
           _internal::ss_plugin_table_t* t):
-            m_name(n),
-            m_key_type(kt), m_table(t), m_data()
+            m_name(n), m_key_type(kt), m_table(t), m_data()
     {
     }
     FALCOSECURITY_INLINE
@@ -538,7 +530,7 @@ class table
                                                const T& key)
     {
         check_type(key);
-        _internal::write_state_data<T>(m_data, key);
+        _internal::write_state_data<T>(&m_data, key);
         auto res = static_cast<_internal::ss_plugin_table_entry_t*>(
                 r.m_reader->get_table_entry(m_table, &m_data));
 
@@ -600,7 +592,7 @@ class table
     FALCOSECURITY_INLINE void erase_entry(const table_writer& w, const T& key)
     {
         check_type(key);
-        _internal::write_state_data<T>(m_data, key);
+        _internal::write_state_data<T>(&m_data, key);
         auto res = w.m_writer->erase_table_entry(m_table, &m_data);
         if(res != result_code::SS_PLUGIN_SUCCESS)
         {
@@ -640,7 +632,7 @@ class table
                                                table_stale_entry&& e)
     {
         check_type(key);
-        _internal::write_state_data<T>(m_data, key);
+        _internal::write_state_data<T>(&m_data, key);
         auto res = static_cast<_internal::ss_plugin_table_entry_t*>(
                 w.m_writer->add_table_entry(m_table, &m_data, e.m_entry));
         if(!res)
