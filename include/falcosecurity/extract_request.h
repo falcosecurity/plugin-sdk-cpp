@@ -80,14 +80,14 @@ class extract_request
     bool is_list() const { return m_req->flist != 0; }
 
     template<typename T>
-    FALCOSECURITY_INLINE auto set_value(const T& container, size_t pos = 0,
+    FALCOSECURITY_INLINE auto set_value(T& container, size_t pos = 0,
                                         bool copy = true)
             -> decltype(container.data(), container.size(), void())
     {
         static_assert(sizeof(typename T::value_type) == 1,
                       "Buffer container must hold byte-sized elements");
-        set_value((void*)container.data(), (uint32_t)container.size(), pos,
-                  copy);
+        set_value(static_cast<void*>(container.data()),
+                  static_cast<uint32_t>(container.size()), pos, copy);
     }
 
     template<typename Iter>
