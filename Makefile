@@ -44,6 +44,7 @@ clean: $(examples_clean)
 format:
 	+find ./include -iname *.h -o -iname *.cpp | grep -v "/deps/" | xargs $(CLANG_FORMAT) -i
 	+find ./examples -iname *.h -o -iname *.cpp | grep -v "/deps/" | xargs $(CLANG_FORMAT) -i
+	+find ./tests -iname *.h -o -iname *.cpp | grep -v "/deps/" | xargs $(CLANG_FORMAT) -i
 
 .PHONY: deps
 deps: $(DEPS_INCLUDEDIR)/plugin_types.h $(DEPS_INCLUDEDIR)/plugin_api.h $(DEPS_INCLUDEDIR)/nlohmann/json.hpp
