@@ -13,5 +13,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build
+      - name: Build examples
         run: make -j4
+
+      - name: Configure CMake
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+
+      - name: Build tests
+        run: cmake --build build --parallel 4
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure
