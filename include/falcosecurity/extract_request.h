@@ -22,6 +22,7 @@ limitations under the License.
 #include <falcosecurity/types.h>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 namespace falcosecurity
@@ -79,10 +80,15 @@ class extract_request
     FALCOSECURITY_INLINE
     bool is_list() const { return m_req->flist != 0; }
 
+    // Keep std::string out of this byte-buffer overload.
+    // Avoids set_value(std::string&) to be matched by this.
     template<typename T>
     FALCOSECURITY_INLINE auto set_value(T& container, size_t pos = 0,
-                                        bool copy = true)
-            -> decltype(container.data(), container.size(), void())
+                                        bool copy = true) ->
+            typename std::enable_if<!std::is_same<typename std::decay<T>::type,
+                                                  std::string>::value,
+                                    decltype(container.data(), container.size(),
+                                             void())>::type
     {
         static_assert(sizeof(typename T::value_type) == 1,
                       "Buffer container must hold byte-sized elements");
