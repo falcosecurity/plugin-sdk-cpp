@@ -32,6 +32,8 @@
 
 > /area tests
 
+> /area automation
+
 <!--
 Please remove the leading whitespace before the `/area <>` you uncommented.
 -->
