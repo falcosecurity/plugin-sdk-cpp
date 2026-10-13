@@ -167,6 +167,7 @@ class table_entry
         m_entry = o.m_entry;
         m_table = o.m_table;
         m_reader = o.m_reader;
+        m_owned = o.m_owned;
         o.m_entry = nullptr;
     };
     FALCOSECURITY_INLINE
@@ -176,6 +177,7 @@ class table_entry
         m_entry = o.m_entry;
         m_table = o.m_table;
         m_reader = o.m_reader;
+        m_owned = o.m_owned;
         o.m_entry = nullptr;
         return *this;
     };
@@ -205,7 +207,7 @@ class table_entry
     FALCOSECURITY_INLINE
     void release_entry()
     {
-        if(m_entry && m_reader->m_reader)
+        if(m_owned && m_entry && m_reader->m_reader)
         {
             m_reader->m_reader->release_table_entry(m_table, m_entry);
             m_entry = nullptr;
@@ -215,6 +217,9 @@ class table_entry
     _internal::ss_plugin_table_entry_t* m_entry;
     _internal::ss_plugin_table_t* m_table;
     const table_reader* m_reader;
+    // false for entries borrowed from the table (iteration): they must not
+    // be released.
+    bool m_owned = true;
 
     friend class table;
     friend class table_field;
@@ -696,6 +701,7 @@ class table
     {
         table_iterator_state_t* state = static_cast<table_iterator_state_t*>(s);
         table_entry entry(e, state->table, state->reader);
+        entry.m_owned = false;
         return state->func(entry) ? 1 : 0;
     }
 

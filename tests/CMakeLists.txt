@@ -37,5 +37,13 @@ target_link_libraries(codec_test PRIVATE
     GTest::gtest_main
 )
 
+# Table test
+add_executable(table_test table_test.cpp)
+target_link_libraries(table_test PRIVATE
+    plugin-sdk-cpp
+    GTest::gtest_main
+)
+
 # Discover tests
 gtest_discover_tests(codec_test)
+gtest_discover_tests(table_test)
